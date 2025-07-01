@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.0](https://github.com/n3wt0n/PingdomExporter/compare/v0.1.0...v0.2.0) (2025-07-01)
+
+### 🚀 Features
+
+* added CLI parameters handling ([9471c9e](https://github.com/n3wt0n/PingdomExporter/commit/9471c9efee10b36de24c8dcd8a31b66a847cc1a5))
+
 ## [0.1.0](https://github.com/n3wt0n/PingdomExporter/compare/v0.0.4...v0.1.0) (2025-07-01)
 
 ### 🚀 Features
