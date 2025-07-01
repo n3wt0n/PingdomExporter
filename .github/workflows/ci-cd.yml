@@ -144,7 +144,8 @@ jobs:
         dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true --output ../temp-build/${{ matrix.runtime }}
         
         # Copy additional files
-        cp ../README.md appsettings.sample.json ../temp-build/${{ matrix.runtime }}/
+        cp ../README.md ../temp-build/${{ matrix.runtime }}/ 2>/dev/null || echo "Failed to copy README.md"
+        cp appsettings.sample.json ../temp-build/${{ matrix.runtime }}/ 2>/dev/null || echo "Failed to copy appsettings.sample.json"
         
         # Copy platform-specific scripts
         for script in ${{ matrix.scripts }}; do
@@ -204,6 +205,18 @@ jobs:
         npm install -g @semantic-release/changelog@6.0.3
         npm install -g @semantic-release/git@10.0.1
         npm install -g @semantic-release/github@9.2.6
+        
+        # Install jq for JSON parsing in debug
+        sudo apt-get update && sudo apt-get install -y jq
+
+    - name: Update repository URL in package.json
+      run: |
+        # Update package.json with the correct repository URL
+        jq --arg repo "https://github.com/${{ github.repository }}.git" '.repository.url = $repo' package.json > package.json.tmp
+        mv package.json.tmp package.json
+        
+        echo "=== Updated package.json repository URL ==="
+        jq '.repository' package.json
 
     - name: Download all platform artifacts
       uses: actions/download-artifact@v4
@@ -218,9 +231,13 @@ jobs:
         mkdir -p platform-releases
         
         # Move artifacts to expected locations
-        mv artifacts/platform-win-x64/pingdom-exporter-win-x64.zip platform-releases/
-        mv artifacts/platform-linux-x64/pingdom-exporter-linux-x64.tar.gz platform-releases/
-        mv artifacts/platform-osx-x64/pingdom-exporter-osx-x64.tar.gz platform-releases/
+        echo "=== Moving artifacts ==="
+        mv artifacts/platform-win-x64/pingdom-exporter-win-x64.zip platform-releases/ && echo "✅ Moved Windows package" || echo "❌ Failed to move Windows package"
+        mv artifacts/platform-linux-x64/pingdom-exporter-linux-x64.tar.gz platform-releases/ && echo "✅ Moved Linux package" || echo "❌ Failed to move Linux package"
+        mv artifacts/platform-osx-x64/pingdom-exporter-osx-x64.tar.gz platform-releases/ && echo "✅ Moved macOS package" || echo "❌ Failed to move macOS package"
+        
+        echo "=== Final platform-releases contents ==="
+        ls -la platform-releases/
 
     - name: Verify platform packages
       run: |
@@ -242,6 +259,20 @@ jobs:
         # Ensure we're in the root directory
         cd $GITHUB_WORKSPACE
         
+        # Debug: Check if config files exist
+        echo "=== Checking semantic-release configuration ==="
+        pwd
+        ls -la .releaserc.json || echo "❌ .releaserc.json not found"
+        ls -la package.json || echo "❌ package.json not found"
+        
+        # Show the contents of .releaserc.json to verify assets paths
+        echo "=== .releaserc.json contents ==="
+        cat .releaserc.json | jq '.plugins[] | select(.[0] == "@semantic-release/github") | .[1].assets' || echo "Could not parse assets from .releaserc.json"
+        
+        # Verify the platform files exist where semantic-release expects them
+        echo "=== Verifying platform files for semantic-release ==="
+        ls -la platform-releases/ || echo "platform-releases directory missing"
+        
         # Initialize version to 0.1.0 if this is the first release
         if ! git tag -l | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+' > /dev/null; then
           echo "No previous releases found. Initializing version to 0.1.0"
@@ -249,5 +280,6 @@ jobs:
           git push origin v0.0.0 || echo "Tag already exists"
         fi
         
-        # Run semantic release
-        semantic-release
+        # Run semantic release with verbose output
+        echo "=== Running semantic-release ==="
+        semantic-release --debug
