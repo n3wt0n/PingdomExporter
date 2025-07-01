@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.0](https://github.com/n3wt0n/PingdomExporter/compare/v0.0.4...v0.1.0) (2025-07-01)
+
+### 🚀 Features
+
+* implementations ([c1c5496](https://github.com/n3wt0n/PingdomExporter/commit/c1c5496bd2b110f52053800d4686327b6345620f))
+* working version ([7e55d14](https://github.com/n3wt0n/PingdomExporter/commit/7e55d1452c8e3ffa9f130736c0be185ef90a23a3))
+
+### 🐛 Bug Fixes
+
+* added config retrieval ([487129c](https://github.com/n3wt0n/PingdomExporter/commit/487129c1e252320d2b4ada37a3608d19de3d3f87))
+
 ## [0.0.4](https://github.com/n3wt0n/PingdomExporter/compare/v0.0.3...v0.0.4) (2025-07-01)
 
 ### 🐛 Bug Fixes
