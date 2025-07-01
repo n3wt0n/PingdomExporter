@@ -1,0 +1,7 @@
+
+###
+
+GET https://api.pingdom.com/api/3.1/checks?limit=25000&include_tags=true HTTP/1.1
+Authorization: Bearer YOUR_TOKEN_HERE
+Accept: application/json
+Accept-Encoding: gzip

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http;
 using PingdomExporter.Models;
 using PingdomExporter.Services;
+using System.Net.Http.Headers;
 
 namespace PingdomExporter
 {
@@ -113,11 +114,28 @@ namespace PingdomExporter
             // Register configuration
             services.AddSingleton(config);
 
-            // Register HTTP client
+            // Register HTTP client with automatic decompression and proper authentication
             services.AddHttpClient<IPingdomApiService, PingdomApiService>(client =>
             {
                 client.BaseAddress = new Uri(config.BaseUrl);
                 client.Timeout = TimeSpan.FromSeconds(30);
+                
+                // Configure authentication
+                client.DefaultRequestHeaders.Authorization = 
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", config.ApiToken);
+                
+                // Request compression and ensure JSON responses
+                client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate");
+                client.DefaultRequestHeaders.Accept.Add(
+                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            })
+            .ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                // Ensure automatic decompression is enabled
+                return new HttpClientHandler()
+                {
+                    AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
+                };
             });
 
             // Register services

@@ -23,7 +23,7 @@ namespace PingdomExporter.Models
     public class ExportConfiguration
     {
         public string ApiToken { get; set; } = string.Empty;
-        public string BaseUrl { get; set; } = "https://api.pingdom.com/api/3.1";
+        public string BaseUrl { get; set; } = "https://api.pingdom.com/api/3.1/";
         public string OutputDirectory { get; set; } = "exports";
         public bool ExportUptimeChecks { get; set; } = true;
         public bool ExportTransactionChecks { get; set; } = true;

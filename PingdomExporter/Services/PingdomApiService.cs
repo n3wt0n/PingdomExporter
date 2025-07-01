@@ -22,152 +22,172 @@ namespace PingdomExporter.Services
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _config = config ?? throw new ArgumentNullException(nameof(config));
+            
+            // HttpClient is now configured via DI in Program.cs
+            // No additional configuration needed here
+        }
 
-            // Configure HTTP client
-            _httpClient.BaseAddress = new Uri(_config.BaseUrl);
-            _httpClient.DefaultRequestHeaders.Authorization = 
-                new AuthenticationHeaderValue("Bearer", _config.ApiToken);
-            _httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
-            _httpClient.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
+        /// <summary>
+        /// Centralized HTTP GET method with authentication, rate limiting, and error handling
+        /// </summary>
+        private async Task<T> GetAsync<T>(string relativeUrl) where T : new()
+        {
+            try
+            {
+                // Apply rate limiting
+                await DelayForRateLimitAsync();
 
-            // Set a reasonable timeout
-            _httpClient.Timeout = TimeSpan.FromSeconds(30);
+                // Make the request using relative URL (BaseAddress + relativeUrl)
+                var response = await _httpClient.GetAsync(relativeUrl);
+
+                await EnsureSuccessStatusCodeAsync(response);
+
+                var content = await response.Content.ReadAsStringAsync();
+
+                var result = JsonConvert.DeserializeObject<T>(content);
+                
+                return result ?? new T();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error making GET request to {relativeUrl}: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Specialized method for getting raw response content with authentication and rate limiting
+        /// </summary>
+        private async Task<string> GetRawAsync(string relativeUrl)
+        {
+            try
+            {
+                // Apply rate limiting
+                await DelayForRateLimitAsync();
+
+                // Make the request using relative URL (BaseAddress + relativeUrl)
+                var response = await _httpClient.GetAsync(relativeUrl);
+
+                await EnsureSuccessStatusCodeAsync(response);
+
+                // Debug: Check content encoding
+                var contentEncoding = response.Content.Headers.ContentEncoding;
+                if (contentEncoding.Any())
+                {
+                    Console.WriteLine($"Response content encoding: {string.Join(", ", contentEncoding)}");
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                
+                // Debug: Check if content looks valid
+                if (string.IsNullOrWhiteSpace(content))
+                {
+                    Console.WriteLine("Warning: Response content is empty");
+                }
+                else if (!content.TrimStart().StartsWith("{") && !content.TrimStart().StartsWith("["))
+                {
+                    Console.WriteLine($"Warning: Response doesn't look like JSON. First 100 chars: {content.Substring(0, Math.Min(100, content.Length))}");
+                }
+
+                return content;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error making GET request to {relativeUrl}: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<PingdomChecksResponse> GetUptimeChecksAsync()
         {
-            try
+            Console.WriteLine("Fetching uptime checks...");
+            
+            var queryParams = new List<string>
             {
-                Console.WriteLine("Fetching uptime checks...");
-                
-                var queryParams = new List<string>
-                {
-                    "limit=25000" // Maximum allowed
-                };
+                "limit=25000" // Maximum allowed
+            };
 
-                if (_config.IncludeTags)
-                {
-                    queryParams.Add("include_tags=true");
-                }
-
-                var queryString = string.Join("&", queryParams);
-                var response = await _httpClient.GetAsync($"/checks?{queryString}");
-
-                await EnsureSuccessStatusCodeAsync(response);
-
-                var content = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<PingdomChecksResponse>(content);
-                
-                Console.WriteLine($"Successfully fetched {result?.Checks.Count ?? 0} uptime checks");
-                return result ?? new PingdomChecksResponse();
-            }
-            catch (Exception ex)
+            if (_config.IncludeTags)
             {
-                Console.WriteLine($"Error fetching uptime checks: {ex.Message}");
-                throw;
+                queryParams.Add("include_tags=true");
             }
+
+            var queryString = string.Join("&", queryParams);
+            var relativeUrl = $"checks?{queryString}";
+            
+            var result = await GetAsync<PingdomChecksResponse>(relativeUrl);
+            
+            Console.WriteLine($"Successfully fetched {result?.Checks?.Count ?? 0} uptime checks");
+            return result ?? new PingdomChecksResponse();
         }
 
         public async Task<TmsChecksResponse> GetTransactionChecksAsync()
         {
-            try
+            Console.WriteLine("Fetching transaction checks...");
+
+            var queryParams = new List<string>
             {
-                Console.WriteLine("Fetching transaction checks...");
+                "limit=1000"
+            };
 
-                var queryParams = new List<string>
-                {
-                    "limit=1000"
-                };
-
-                if (_config.IncludeTags)
-                {
-                    queryParams.Add("extended_tags=true");
-                }
-
-                var queryString = string.Join("&", queryParams);
-                var response = await _httpClient.GetAsync($"/tms/check?{queryString}");
-
-                await EnsureSuccessStatusCodeAsync(response);
-
-                var content = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<TmsChecksResponse>(content);
-                
-                Console.WriteLine($"Successfully fetched {result?.Checks.Count ?? 0} transaction checks");
-                return result ?? new TmsChecksResponse();
-            }
-            catch (Exception ex)
+            if (_config.IncludeTags)
             {
-                Console.WriteLine($"Error fetching transaction checks: {ex.Message}");
-                throw;
+                queryParams.Add("extended_tags=true");
             }
+
+            var queryString = string.Join("&", queryParams);
+            var relativeUrl = $"tms/check?{queryString}";
+            
+            var result = await GetAsync<TmsChecksResponse>(relativeUrl);
+            
+            Console.WriteLine($"Successfully fetched {result?.Checks?.Count ?? 0} transaction checks");
+            return result ?? new TmsChecksResponse();
         }
 
         public async Task<PingdomCheck> GetUptimeCheckDetailsAsync(int checkId)
         {
-            try
+            Console.WriteLine($"Fetching details for uptime check {checkId}...");
+
+            var queryParams = new List<string>();
+            
+            if (_config.IncludeTeams)
             {
-                Console.WriteLine($"Fetching details for uptime check {checkId}...");
-
-                var queryParams = new List<string>();
-                
-                if (_config.IncludeTeams)
-                {
-                    queryParams.Add("include_teams=true");
-                }
-
-                var queryString = queryParams.Any() ? "?" + string.Join("&", queryParams) : "";
-                var response = await _httpClient.GetAsync($"/checks/{checkId}{queryString}");
-
-                await EnsureSuccessStatusCodeAsync(response);
-
-                var content = await response.Content.ReadAsStringAsync();
-                var checkResponse = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
-                
-                if (checkResponse?.ContainsKey("check") == true)
-                {
-                    var checkJson = JsonConvert.SerializeObject(checkResponse["check"]);
-                    var result = JsonConvert.DeserializeObject<PingdomCheck>(checkJson);
-                    return result ?? new PingdomCheck();
-                }
-
-                return new PingdomCheck();
+                queryParams.Add("include_teams=true");
             }
-            catch (Exception ex)
+
+            var queryString = queryParams.Any() ? "?" + string.Join("&", queryParams) : "";
+            var relativeUrl = $"checks/{checkId}{queryString}";
+            
+            var content = await GetRawAsync(relativeUrl);
+            var checkResponse = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+            
+            if (checkResponse?.ContainsKey("check") == true)
             {
-                Console.WriteLine($"Error fetching uptime check {checkId} details: {ex.Message}");
-                throw;
+                var checkJson = JsonConvert.SerializeObject(checkResponse["check"]);
+                var result = JsonConvert.DeserializeObject<PingdomCheck>(checkJson);
+                return result ?? new PingdomCheck();
             }
+
+            return new PingdomCheck();
         }
 
         public async Task<TmsCheck> GetTransactionCheckDetailsAsync(int checkId)
         {
-            try
+            Console.WriteLine($"Fetching details for transaction check {checkId}...");
+
+            var queryParams = new List<string>();
+            
+            if (_config.IncludeTags)
             {
-                Console.WriteLine($"Fetching details for transaction check {checkId}...");
-
-                var queryParams = new List<string>();
-                
-                if (_config.IncludeTags)
-                {
-                    queryParams.Add("extended_tags=true");
-                }
-
-                var queryString = queryParams.Any() ? "?" + string.Join("&", queryParams) : "";
-                var response = await _httpClient.GetAsync($"/tms/check/{checkId}{queryString}");
-
-                await EnsureSuccessStatusCodeAsync(response);
-
-                var content = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<TmsCheck>(content);
-                
-                return result ?? new TmsCheck();
+                queryParams.Add("extended_tags=true");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching transaction check {checkId} details: {ex.Message}");
-                throw;
-            }
+
+            var queryString = queryParams.Any() ? "?" + string.Join("&", queryParams) : "";
+            var relativeUrl = $"tms/check/{checkId}{queryString}";
+            
+            var result = await GetAsync<TmsCheck>(relativeUrl);
+            
+            return result ?? new TmsCheck();
         }
 
         private async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response)
