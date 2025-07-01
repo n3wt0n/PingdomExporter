@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.4](https://github.com/n3wt0n/PingdomExporter/compare/v0.0.3...v0.0.4) (2025-07-01)
+
+### 🐛 Bug Fixes
+
+* added missing dependency for semantic release ([d272e38](https://github.com/n3wt0n/PingdomExporter/commit/d272e38cc6ea4b4c68a36bd7a514523c09497685))
+* updated semantic release version and config ([1315b1d](https://github.com/n3wt0n/PingdomExporter/commit/1315b1da83cd7f77947a30e114f8701a751b2e73))
+
 ## [Unreleased]
 
 ### 🚀 Features
