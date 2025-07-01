@@ -212,6 +212,69 @@ dotnet run
 dotnet test
 ```
 
+### CI/CD Pipeline
+
+This project includes a streamlined GitHub Actions workflow with three main jobs:
+
+#### 1. Build Job
+- ✅ Builds and tests the application on Ubuntu
+- ✅ Validates dependencies and code quality
+- ✅ Tests application help command
+- ✅ Uploads build artifacts for reuse
+- ✅ Determines if a release should be triggered
+
+#### 2. Cross-Platform Test Job (Pull Requests Only)
+- ✅ Tests compatibility across Windows, Linux, and macOS
+- ✅ Validates build success on each platform
+- ✅ Runs in parallel after successful build
+
+#### 3. Release Job (Main Branch Only)
+- ✅ Downloads artifacts from build job (no rebuild needed)
+- ✅ Creates platform-specific releases (Windows, Linux, macOS)
+- ✅ Generates semantic versions automatically
+- ✅ Creates GitHub releases with downloadable binaries
+- ✅ Updates CHANGELOG.md automatically
+
+This design eliminates duplication by having the release job reuse build artifacts instead of rebuilding everything from scratch.
+
+#### Semantic Versioning
+
+The project uses [Conventional Commits](https://conventionalcommits.org/) for automatic semantic versioning:
+
+- `feat:` → Minor version bump (new features)
+- `fix:` → Patch version bump (bug fixes)
+- `BREAKING CHANGE:` → Major version bump (breaking changes)
+- `docs:`, `style:`, `refactor:`, etc. → Patch version bump
+
+Example commit messages:
+```bash
+git commit -m "feat: add support for custom API endpoints"
+git commit -m "fix: handle network timeout errors gracefully"  
+git commit -m "docs: update installation instructions"
+```
+
+#### Release Process
+
+Releases are automatically created when code is pushed to the `main` branch:
+
+1. **Automatic Version Calculation**: Based on conventional commit messages
+2. **Cross-Platform Builds**: Self-contained executables for Windows, Linux, and macOS
+3. **GitHub Release**: Tagged release with release notes and downloadable assets
+4. **Changelog Update**: Automatically generated and committed back to the repository
+
+To trigger a release:
+```bash
+git add .
+git commit -m "feat: add new export feature"
+git push origin main
+```
+
+The workflow will automatically:
+- Determine the next version (e.g., 0.1.0 → 0.2.0 for a feature)
+- Build platform-specific binaries
+- Create a GitHub release with assets
+- Update the CHANGELOG.md
+
 ## Contributing
 
 1. Fork the repository

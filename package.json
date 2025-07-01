@@ -1,0 +1,35 @@
+{
+  "name": "pingdom-exporter",
+  "version": "0.0.0-development",
+  "description": "A .NET console application that connects to the Pingdom API and downloads monitor configurations",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/pingdomexport.git"
+  },
+  "keywords": [
+    "pingdom",
+    "monitoring",
+    "api",
+    "export",
+    "backup",
+    "dotnet",
+    "csharp"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.2.6",
+    "semantic-release": "^22.0.12"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ]
+  },
+  "scripts": {
+    "semantic-release": "semantic-release"
+  }
+}

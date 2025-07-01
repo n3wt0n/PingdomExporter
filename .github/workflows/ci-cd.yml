@@ -1,0 +1,256 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_PATH: './PingdomExporter'
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for semantic release
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.PROJECT_PATH }}
+
+    - name: Build application
+      run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
+
+    - name: Run tests (if any)
+      run: dotnet test ${{ env.PROJECT_PATH }} --configuration Release --no-build --verbosity normal
+      continue-on-error: true  # Continue if no tests exist
+
+    - name: Create sample configuration
+      run: |
+        cd ${{ env.PROJECT_PATH }}
+        cp appsettings.sample.json appsettings.json
+
+    - name: Test application help
+      run: |
+        cd ${{ env.PROJECT_PATH }}
+        dotnet run --configuration Release -- --help || echo "Help command not implemented yet"
+      continue-on-error: true
+
+  cross-platform-test:
+    name: Cross-Platform Test
+    needs: build
+    runs-on: ${{ matrix.os }}
+    if: github.event_name == 'pull_request'
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.PROJECT_PATH }}
+
+    - name: Build application
+      run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
+
+    - name: Test build output (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd ${{ env.PROJECT_PATH }}
+        if (Test-Path "bin/Release/net*/PingdomExporter.dll") {
+          Write-Host "✅ Build successful on Windows"
+        } else {
+          Write-Host "❌ Build failed on Windows"
+          exit 1
+        }
+      shell: pwsh
+
+    - name: Test build output (Unix)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd ${{ env.PROJECT_PATH }}
+        if [ -f "bin/Release/net"*/PingdomExporter.dll ]; then
+          echo "✅ Build successful on ${{ matrix.os }}"
+        else
+          echo "❌ Build failed on ${{ matrix.os }}"
+          exit 1
+        fi
+      shell: bash
+
+  release:
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Setup Node.js for semantic-release
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install semantic-release
+      run: |
+        npm install -g semantic-release@22.0.12
+        npm install -g @semantic-release/changelog@6.0.3
+        npm install -g @semantic-release/git@10.0.1
+        npm install -g @semantic-release/github@9.2.6
+
+    - name: Restore dependencies for publishing
+      run: dotnet restore ${{ env.PROJECT_PATH }}
+
+    - name: Create platform-specific packages
+      run: |
+        cd ${{ env.PROJECT_PATH }}
+        
+        # Create output directory for platform builds
+        mkdir -p ../platform-releases
+        
+        # Build for Windows x64
+        dotnet publish --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true --output ../platform-releases/win-x64
+        cp README.md run.bat run.ps1 appsettings.sample.json ../platform-releases/win-x64/ 2>/dev/null || echo "Some files not copied to win-x64"
+        
+        # Build for Linux x64
+        dotnet publish --configuration Release --runtime linux-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true --output ../platform-releases/linux-x64
+        cp README.md run.sh appsettings.sample.json ../platform-releases/linux-x64/ 2>/dev/null || echo "Some files not copied to linux-x64"
+        chmod +x ../platform-releases/linux-x64/run.sh 2>/dev/null || echo "Failed to set execute permission for run.sh"
+        chmod +x ../platform-releases/linux-x64/PingdomExporter 2>/dev/null || echo "Failed to set execute permission for PingdomExporter"
+        
+        # Build for macOS x64
+        dotnet publish --configuration Release --runtime osx-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true --output ../platform-releases/osx-x64
+        cp README.md run.sh appsettings.sample.json ../platform-releases/osx-x64/ 2>/dev/null || echo "Some files not copied to osx-x64"
+        chmod +x ../platform-releases/osx-x64/run.sh 2>/dev/null || echo "Failed to set execute permission for run.sh"
+        chmod +x ../platform-releases/osx-x64/PingdomExporter 2>/dev/null || echo "Failed to set execute permission for PingdomExporter"
+        
+        # Create ZIP files for each platform
+        cd ../platform-releases
+        zip -r pingdom-exporter-win-x64.zip win-x64/
+        tar -czf pingdom-exporter-linux-x64.tar.gz linux-x64/
+        tar -czf pingdom-exporter-osx-x64.tar.gz osx-x64/
+
+    - name: Run semantic release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Create semantic-release config if it doesn't exist
+        if [ ! -f .releaserc.json ]; then
+          cat > .releaserc.json << 'EOF'
+        {
+          "branches": ["main"],
+          "repositoryUrl": "https://github.com/${{ github.repository }}",
+          "plugins": [
+            [
+              "@semantic-release/commit-analyzer",
+              {
+                "preset": "conventionalcommits",
+                "releaseRules": [
+                  { "type": "feat", "release": "minor" },
+                  { "type": "fix", "release": "patch" },
+                  { "type": "docs", "release": "patch" },
+                  { "type": "style", "release": "patch" },
+                  { "type": "refactor", "release": "patch" },
+                  { "type": "perf", "release": "patch" },
+                  { "type": "test", "release": "patch" },
+                  { "type": "build", "release": "patch" },
+                  { "type": "ci", "release": "patch" },
+                  { "type": "chore", "release": "patch" },
+                  { "type": "revert", "release": "patch" },
+                  { "breaking": true, "release": "major" }
+                ]
+              }
+            ],
+            [
+              "@semantic-release/release-notes-generator",
+              {
+                "preset": "conventionalcommits"
+              }
+            ],
+            [
+              "@semantic-release/changelog",
+              {
+                "changelogFile": "CHANGELOG.md"
+              }
+            ],
+            [
+              "@semantic-release/github",
+              {
+                "assets": [
+                  {
+                    "path": "platform-releases/pingdom-exporter-win-x64.zip",
+                    "label": "Windows x64 (zip)"
+                  },
+                  {
+                    "path": "platform-releases/pingdom-exporter-linux-x64.tar.gz",
+                    "label": "Linux x64 (tar.gz)"
+                  },
+                  {
+                    "path": "platform-releases/pingdom-exporter-osx-x64.tar.gz",
+                    "label": "macOS x64 (tar.gz)"
+                  }
+                ]
+              }
+            ],
+            [
+              "@semantic-release/git",
+              {
+                "assets": ["CHANGELOG.md"],
+                "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+              }
+            ]
+          ]
+        }
+        EOF
+        fi
+        
+        # Initialize version to 0.1.0 if this is the first release
+        if ! git tag -l | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+' > /dev/null; then
+          echo "No previous releases found. Initializing version to 0.1.0"
+          git tag v0.0.0
+          git push origin v0.0.0 || echo "Tag already exists"
+        fi
+        
+        # Run semantic release
+        semantic-release

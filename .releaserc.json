@@ -1,0 +1,89 @@
+{
+  "branches": ["main"],
+  "repositoryUrl": "https://github.com/YOUR_USERNAME/pingdomexport",
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "docs", "release": "patch" },
+          { "type": "style", "release": "patch" },
+          { "type": "refactor", "release": "patch" },
+          { "type": "perf", "release": "patch" },
+          { "type": "test", "release": "patch" },
+          { "type": "build", "release": "patch" },
+          { "type": "ci", "release": "patch" },
+          { "type": "chore", "release": "patch" },
+          { "type": "revert", "release": "patch" },
+          { "breaking": true, "release": "major" }
+        ],
+        "parserOpts": {
+          "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES", "BREAKING"]
+        }
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            { "type": "feat", "section": "🚀 Features" },
+            { "type": "fix", "section": "🐛 Bug Fixes" },
+            { "type": "docs", "section": "📖 Documentation" },
+            { "type": "style", "section": "💄 Styles" },
+            { "type": "refactor", "section": "♻️ Code Refactoring" },
+            { "type": "perf", "section": "⚡ Performance Improvements" },
+            { "type": "test", "section": "✅ Tests" },
+            { "type": "build", "section": "🏗️ Build System" },
+            { "type": "ci", "section": "👷 CI/CD" },
+            { "type": "chore", "section": "🔧 Maintenance" },
+            { "type": "revert", "section": "⏪ Reverts" }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# Changelog\n\nAll notable changes to this project will be documented in this file. See [Conventional Commits](https://conventionalcommits.org) for commit guidelines."
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "platform-releases/pingdom-exporter-win-x64.zip",
+            "label": "Pingdom Exporter - Windows x64 (Self-contained executable)",
+            "name": "pingdom-exporter-${nextRelease.gitTag}-win-x64.zip"
+          },
+          {
+            "path": "platform-releases/pingdom-exporter-linux-x64.tar.gz",
+            "label": "Pingdom Exporter - Linux x64 (Self-contained executable)",
+            "name": "pingdom-exporter-${nextRelease.gitTag}-linux-x64.tar.gz"
+          },
+          {
+            "path": "platform-releases/pingdom-exporter-osx-x64.tar.gz",
+            "label": "Pingdom Exporter - macOS x64 (Self-contained executable)",
+            "name": "pingdom-exporter-${nextRelease.gitTag}-osx-x64.tar.gz"
+          }
+        ],
+        "addReleases": "bottom",
+        "successComment": "🎉 This ${issue.pull_request ? 'PR is included' : 'issue has been resolved'} in version ${nextRelease.version} :tada:",
+        "releasedLabels": ["released"]
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}
