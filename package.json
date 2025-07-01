@@ -5,7 +5,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/pingdomexport.git"
+    "url": "https://github.com/n3wt0n/pingdomexport.git"
   },
   "keywords": [
     "pingdom",
@@ -16,7 +16,7 @@
     "dotnet",
     "csharp"
   ],
-  "author": "Your Name",
+  "author": "Davide Benvegnu",
   "license": "MIT",
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
