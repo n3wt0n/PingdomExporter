@@ -69,15 +69,80 @@ Edit the `appsettings.json` file and replace `YOUR_PINGDOM_API_TOKEN_HERE` with 
 
 ### 3. Run the Application
 
+The application supports multiple ways to run:
+
+#### Basic Usage
 ```bash
 # Interactive mode (prompts for confirmation)
 dotnet run
 
 # Automatic mode (no prompts)
 dotnet run -- --auto
-
-# Alternative automatic mode
 dotnet run -- -y
+```
+
+#### Advanced CLI Usage
+
+The application supports comprehensive command-line arguments for automation and CI/CD scenarios:
+
+```bash
+# Basic export with API token via CLI
+dotnet run -- --api-token "your_token_here" --auto
+
+# Custom output directory and format
+dotnet run -- --api-token "your_token" --output-dir "/path/to/exports" --format csv --auto
+
+# Export only uptime checks, skip transaction checks
+dotnet run -- --api-token "your_token" --no-transaction --auto
+
+# Export only transaction checks with custom delay
+dotnet run -- --api-token "your_token" --no-uptime --delay 2000 --auto
+
+# Verbose output with specific API endpoint
+dotnet run -- --api-token "your_token" --base-url "https://api.pingdom.com/api/3.1" --verbose --auto
+
+# Skip tags and teams information
+dotnet run -- --api-token "your_token" --no-tags --no-teams --auto
+```
+
+#### All CLI Options
+
+| Short | Long | Description | Example |
+|-------|------|-------------|---------|
+| `-t` | `--api-token` | Pingdom API token (Bearer token) | `--api-token "abc123"` |
+| `-u` | `--base-url` | Pingdom API base URL | `--base-url "https://api.pingdom.com/api/3.1"` |
+| `-o` | `--output-dir` | Output directory for exported files | `--output-dir "exports"` |
+| `-f` | `--format` | Output format: json, csv, or both | `--format csv` |
+| | `--uptime` | Export uptime checks (true/false) | `--uptime true` |
+| | `--no-uptime` | Skip exporting uptime checks | `--no-uptime` |
+| | `--transaction` | Export transaction checks (true/false) | `--transaction false` |
+| | `--no-transaction` | Skip exporting transaction checks | `--no-transaction` |
+| | `--include-tags` | Include tag information (true/false) | `--include-tags false` |
+| | `--no-tags` | Skip tag information | `--no-tags` |
+| | `--include-teams` | Include team assignments (true/false) | `--include-teams true` |
+| | `--no-teams` | Skip team assignments | `--no-teams` |
+| `-d` | `--delay` | Delay between API requests in milliseconds | `--delay 1500` |
+| `-y` | `--auto` | Run automatically without prompts | `--auto` |
+| `-v` | `--verbose` | Enable verbose output | `--verbose` |
+| `-h` | `--help` | Show help and usage information | `--help` |
+| | `--version` | Show version information | `--version` |
+
+#### Configuration Priority
+
+The application uses the following configuration priority (highest to lowest):
+
+1. **Command-line arguments** (highest priority)
+2. **Environment variables** with `PINGDOM_` prefix
+3. **appsettings.json** file
+4. **Default values** (lowest priority)
+
+Example showing all three methods:
+```bash
+# appsettings.json sets defaults
+# Environment variable overrides file
+export PINGDOM_OutputDirectory="/tmp/pingdom-backup"
+# CLI argument overrides everything
+dotnet run -- --output-dir "/final/export/path" --auto
 ```
 
 ## Configuration Options
