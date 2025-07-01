@@ -19,7 +19,7 @@ NC='\033[0m' # No Color
 # Check if dotnet is installed
 if ! command -v dotnet &> /dev/null; then
     echo -e "${RED}Error: .NET is not installed or not in PATH${NC}"
-    echo -e "${YELLOW}Please install .NET 8.0 or later from https://dotnet.microsoft.com/download${NC}"
+    echo -e "${YELLOW}Please install .NET 9.0 or later from https://dotnet.microsoft.com/download${NC}"
     exit 1
 fi
 

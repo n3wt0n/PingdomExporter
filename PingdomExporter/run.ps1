@@ -21,7 +21,7 @@ try {
     Write-Host
 } catch {
     Write-Host "Error: .NET is not installed or not in PATH" -ForegroundColor Red
-    Write-Host "Please install .NET 8.0 or later from https://dotnet.microsoft.com/download" -ForegroundColor Yellow
+    Write-Host "Please install .NET 9.0 or later from https://dotnet.microsoft.com/download" -ForegroundColor Yellow
     Read-Host "Press Enter to exit"
     exit 1
 }

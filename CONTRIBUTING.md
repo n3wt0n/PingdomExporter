@@ -20,7 +20,7 @@ Thank you for your interest in contributing to the Pingdom Exporter! This docume
 ## Development Setup
 
 ### Prerequisites
-- .NET 8.0 SDK or later
+- .NET 9.0 SDK or later
 - Git
 - Your favorite code editor (VS Code, Visual Studio, Rider, etc.)
 

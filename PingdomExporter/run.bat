@@ -10,7 +10,7 @@ REM Check if dotnet is installed
 dotnet --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo Error: .NET is not installed or not in PATH
-    echo Please install .NET 8.0 or later from https://dotnet.microsoft.com/download
+    echo Please install .NET 9.0 or later from https://dotnet.microsoft.com/download
     pause
     exit /b 1
 )

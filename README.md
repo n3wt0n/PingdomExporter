@@ -15,7 +15,7 @@ A .NET console application that connects to the Pingdom API and downloads monito
 
 ## Prerequisites
 
-- .NET 8.0 or later
+- .NET 9.0 or later
 - Valid Pingdom API token with appropriate permissions
 
 ## Getting Started

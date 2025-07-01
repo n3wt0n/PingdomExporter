@@ -27,7 +27,7 @@ All notable changes to this project will be documented in this file. See [Conven
 
 ### 🏗️ Build System
 
-- .NET 8.0 project structure
+- .NET 9.0 project structure
 - NuGet package dependencies
 - Cross-platform build support
 - GitHub Actions CI/CD pipeline

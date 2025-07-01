@@ -48,7 +48,7 @@ PingdomExporter/
 - Timestamped output files
 
 ✅ **Cross-Platform Support**
-- .NET 8.0 for Windows, Linux, macOS
+- .NET 9.0 for Windows, Linux, macOS
 - Platform-specific run scripts
 - Cross-platform file handling
 
