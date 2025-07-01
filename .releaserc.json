@@ -1,6 +1,5 @@
 {
   "branches": ["main"],
-  "repositoryUrl": "https://github.com/YOUR_USERNAME/pingdomexport",
   "plugins": [
     [
       "@semantic-release/commit-analyzer",
