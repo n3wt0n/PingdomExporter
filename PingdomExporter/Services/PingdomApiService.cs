@@ -70,25 +70,8 @@ namespace PingdomExporter.Services
 
                 await EnsureSuccessStatusCodeAsync(response);
 
-                // Debug: Check content encoding
-                var contentEncoding = response.Content.Headers.ContentEncoding;
-                if (contentEncoding.Any())
-                {
-                    Console.WriteLine($"Response content encoding: {string.Join(", ", contentEncoding)}");
-                }
-
                 var content = await response.Content.ReadAsStringAsync();
                 
-                // Debug: Check if content looks valid
-                if (string.IsNullOrWhiteSpace(content))
-                {
-                    Console.WriteLine("Warning: Response content is empty");
-                }
-                else if (!content.TrimStart().StartsWith("{") && !content.TrimStart().StartsWith("["))
-                {
-                    Console.WriteLine($"Warning: Response doesn't look like JSON. First 100 chars: {content.Substring(0, Math.Min(100, content.Length))}");
-                }
-
                 return content;
             }
             catch (Exception ex)

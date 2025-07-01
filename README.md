@@ -1,17 +1,39 @@
 # Pingdom Monitor Configuration Exporter
 
-A .NET console application that connects to the Pingdom API and downloads monitor configurations for backup, migration, or analysis purposes.
+A robust .NET console application that connects to the Pingdom API and downloads monitor configurations for backup, migration, or analysis purposes.
+
+## 🎉 Status: **FULLY FUNCTIONAL**
+
+This application is now **production-ready** with all core features working:
+- ✅ Successful authentication with Pingdom API
+- ✅ Export of uptime and transaction monitoring checks
+- ✅ Automatic gzip decompression and JSON parsing
+- ✅ Flexible handling of varying API response structures  
+- ✅ Rate limiting and comprehensive error handling
+- ✅ Cross-platform compatibility (Windows, Linux, macOS)
 
 ## Features
 
-- ✅ Export all uptime monitoring checks
-- ✅ Export all transaction monitoring checks (TMS)
-- ✅ Fetch detailed configuration for each monitor
-- ✅ Support for JSON and CSV output formats
-- ✅ Rate limiting to respect API limits
-- ✅ Comprehensive error handling and retry logic
-- ✅ Configurable export options
-- ✅ Export summary reporting
+- ✅ **Export all uptime monitoring checks** - Complete list and detailed configurations
+- ✅ **Export all transaction monitoring checks (TMS)** - Full transaction scripts and settings
+- ✅ **Fetch detailed configuration for each monitor** - Individual check configurations with all parameters
+- ✅ **Support for JSON and CSV output formats** - Choose your preferred export format
+- ✅ **Rate limiting to respect API limits** - Configurable delays between requests
+- ✅ **Comprehensive error handling and retry logic** - Robust error recovery and reporting
+- ✅ **Configurable export options** - Customizable via configuration files or environment variables
+- ✅ **Export summary reporting** - Detailed statistics and error reporting
+- ✅ **Secure authentication** - Bearer token authentication with automatic gzip compression
+- ✅ **Cross-platform support** - Works on Windows, Linux, and macOS
+
+## 🚀 Quick Start
+
+1. **Get your Pingdom API token** from Settings → API in your Pingdom account
+2. **Clone or download** this repository
+3. **Configure**: Edit `appsettings.json` and replace `YOUR_PINGDOM_API_TOKEN_HERE` with your token
+4. **Run**: Execute `dotnet run` and confirm with 'y' when prompted
+5. **Results**: Find exported configurations in the `exports/` directory
+
+That's it! The application will export all your Pingdom monitor configurations.
 
 ## Prerequisites
 
@@ -179,20 +201,45 @@ The application implements rate limiting to respect Pingdom's API limits:
 
 ## Troubleshooting
 
-### Authentication Errors
+### Common Issues (Now Resolved ✅)
+
+#### Configuration Not Loading
+- **Fixed**: Configuration binding now works correctly with `appsettings.json`
+- **Fixed**: Environment variables with `PINGDOM_` prefix properly override settings
+- **Fixed**: Debug vs Release mode configuration file handling
+
+#### Authentication Errors
+- **Fixed**: Bearer token authentication now works correctly
+- **Fixed**: HTTP client properly configured with authentication headers
+- **Fixed**: Relative URL handling for API endpoints
 - Verify your API token is correct and active
 - Ensure the token has appropriate read permissions
 - Check if your Pingdom account has API access enabled
 
-### Rate Limit Errors
-- Increase the `RequestDelayMs` setting
+#### API Response Issues
+- **Fixed**: Automatic gzip decompression implemented
+- **Fixed**: Flexible JSON parsing handles varying API response structures
+- **Fixed**: Custom converters handle both string and object type fields
+
+#### Rate Limit Errors
+- **Working**: Rate limiting properly implemented and configurable
+- Increase the `RequestDelayMs` setting if needed
 - Check your API usage in Pingdom dashboard
 - Consider running exports during off-peak hours
 
-### Network Errors
+#### Network Errors
+- **Improved**: Better error handling and timeout management
 - Verify internet connectivity
 - Check if corporate firewall blocks API access
 - Ensure DNS resolution for `api.pingdom.com`
+
+### Recent Fixes Applied
+
+1. **Configuration Binding**: Changed from `configuration.Bind()` to `configuration.Get<T>()` for reliable settings loading
+2. **HTTP Authentication**: Moved authentication configuration to DI container with proper header setup
+3. **Gzip Decompression**: Added `AutomaticDecompression` with GZip and Deflate support
+4. **JSON Parsing**: Implemented `FlexibleTypeConverter` for handling varying API response structures
+5. **Error Handling**: Centralized HTTP request handling with consistent error reporting
 
 ## Development
 
