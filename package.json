@@ -5,7 +5,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/n3wt0n/pingdomexport.git"
+    "url": "https://github.com/n3wt0n/PingdomExporter.git"
   },
   "keywords": [
     "pingdom",

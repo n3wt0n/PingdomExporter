@@ -7,7 +7,7 @@ Thank you for your interest in contributing to the Pingdom Exporter! This docume
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/pingdomexport.git
+   git clone https://github.com/YOUR_USERNAME/PingdomExporter.git
    cd pingdomexport
    ```
 3. **Create a branch** for your feature or fix:
