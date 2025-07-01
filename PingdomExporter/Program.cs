@@ -15,14 +15,13 @@ namespace PingdomExporter
                 // Build configuration
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .AddEnvironmentVariables("PINGDOM_")
                     .AddCommandLine(args)
                     .Build();
 
                 // Load export configuration
-                var exportConfig = new ExportConfiguration();
-                configuration.Bind(exportConfig);
+                var exportConfig = configuration.Get<ExportConfiguration>() ?? new ExportConfiguration();
 
                 // Validate configuration
                 if (string.IsNullOrWhiteSpace(exportConfig.ApiToken))
