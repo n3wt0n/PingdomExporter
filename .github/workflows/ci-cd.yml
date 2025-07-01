@@ -104,9 +104,80 @@ jobs:
         fi
       shell: bash
 
+  build-packages:
+    name: Build Platform Packages
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    strategy:
+      matrix:
+        include:
+          - runtime: win-x64
+            extension: zip
+            scripts: "run.bat run.ps1"
+          - runtime: linux-x64
+            extension: tar.gz
+            scripts: "run.sh"
+          - runtime: osx-x64
+            extension: tar.gz
+            scripts: "run.sh"
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.PROJECT_PATH }}
+
+    - name: Build platform package for ${{ matrix.runtime }}
+      run: |
+        cd ${{ env.PROJECT_PATH }}
+        
+        # Create platform-specific build
+        dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true --output ../temp-build/${{ matrix.runtime }}
+        
+        # Copy additional files
+        cp README.md appsettings.sample.json ../temp-build/${{ matrix.runtime }}/
+        
+        # Copy platform-specific scripts
+        for script in ${{ matrix.scripts }}; do
+          if [ -f "$script" ]; then
+            cp "$script" ../temp-build/${{ matrix.runtime }}/
+          fi
+        done
+        
+        # Set execute permissions for Unix platforms
+        if [[ "${{ matrix.runtime }}" != "win-x64" ]]; then
+          chmod +x ../temp-build/${{ matrix.runtime }}/run.sh 2>/dev/null || echo "run.sh not found or already executable"
+          chmod +x ../temp-build/${{ matrix.runtime }}/PingdomExporter 2>/dev/null || echo "PingdomExporter not found or already executable"
+        fi
+
+    - name: Create archive for ${{ matrix.runtime }}
+      run: |
+        cd temp-build
+        if [[ "${{ matrix.extension }}" == "zip" ]]; then
+          zip -r pingdom-exporter-${{ matrix.runtime }}.zip ${{ matrix.runtime }}/
+        else
+          tar -czf pingdom-exporter-${{ matrix.runtime }}.tar.gz ${{ matrix.runtime }}/
+        fi
+
+    - name: Upload platform artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: platform-${{ matrix.runtime }}
+        path: temp-build/pingdom-exporter-${{ matrix.runtime }}.${{ matrix.extension }}
+        retention-days: 1
+
   release:
     name: Release
-    needs: build
+    needs: [build, build-packages]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
@@ -122,11 +193,6 @@ jobs:
         fetch-depth: 0
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
     - name: Setup Node.js for semantic-release
       uses: actions/setup-node@v4
       with:
@@ -139,42 +205,43 @@ jobs:
         npm install -g @semantic-release/git@10.0.1
         npm install -g @semantic-release/github@9.2.6
 
-    - name: Restore dependencies for publishing
-      run: dotnet restore ${{ env.PROJECT_PATH }}
+    - name: Download all platform artifacts
+      uses: actions/download-artifact@v4
+      with:
+        pattern: platform-*
+        path: ./artifacts
+        merge-multiple: false
 
-    - name: Create platform-specific packages
+    - name: Organize platform packages
       run: |
-        cd ${{ env.PROJECT_PATH }}
+        # Create platform-releases directory
+        mkdir -p platform-releases
         
-        # Create output directory for platform builds
-        mkdir -p ../platform-releases
-        
-        # Build for Windows x64
-        dotnet publish --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true --output ../platform-releases/win-x64
-        cp README.md run.bat run.ps1 appsettings.sample.json ../platform-releases/win-x64/ 2>/dev/null || echo "Some files not copied to win-x64"
-        
-        # Build for Linux x64
-        dotnet publish --configuration Release --runtime linux-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true --output ../platform-releases/linux-x64
-        cp README.md run.sh appsettings.sample.json ../platform-releases/linux-x64/ 2>/dev/null || echo "Some files not copied to linux-x64"
-        chmod +x ../platform-releases/linux-x64/run.sh 2>/dev/null || echo "Failed to set execute permission for run.sh"
-        chmod +x ../platform-releases/linux-x64/PingdomExporter 2>/dev/null || echo "Failed to set execute permission for PingdomExporter"
-        
-        # Build for macOS x64
-        dotnet publish --configuration Release --runtime osx-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true --output ../platform-releases/osx-x64
-        cp README.md run.sh appsettings.sample.json ../platform-releases/osx-x64/ 2>/dev/null || echo "Some files not copied to osx-x64"
-        chmod +x ../platform-releases/osx-x64/run.sh 2>/dev/null || echo "Failed to set execute permission for run.sh"
-        chmod +x ../platform-releases/osx-x64/PingdomExporter 2>/dev/null || echo "Failed to set execute permission for PingdomExporter"
-        
-        # Create ZIP files for each platform
-        cd ../platform-releases
-        zip -r pingdom-exporter-win-x64.zip win-x64/
-        tar -czf pingdom-exporter-linux-x64.tar.gz linux-x64/
-        tar -czf pingdom-exporter-osx-x64.tar.gz osx-x64/
+        # Move artifacts to expected locations
+        mv artifacts/platform-win-x64/pingdom-exporter-win-x64.zip platform-releases/
+        mv artifacts/platform-linux-x64/pingdom-exporter-linux-x64.tar.gz platform-releases/
+        mv artifacts/platform-osx-x64/pingdom-exporter-osx-x64.tar.gz platform-releases/
+
+    - name: Verify platform packages
+      run: |
+        echo "=== Checking platform-releases directory ==="
+        ls -la platform-releases/ || echo "platform-releases directory not found"
+        echo "=== Current working directory ==="
+        pwd
+        echo "=== Files in current directory ==="
+        ls -la
+        echo "=== Checking if zip files exist ==="
+        [ -f "platform-releases/pingdom-exporter-win-x64.zip" ] && echo "✅ Windows zip exists" || echo "❌ Windows zip missing"
+        [ -f "platform-releases/pingdom-exporter-linux-x64.tar.gz" ] && echo "✅ Linux tar.gz exists" || echo "❌ Linux tar.gz missing"
+        [ -f "platform-releases/pingdom-exporter-osx-x64.tar.gz" ] && echo "✅ macOS tar.gz exists" || echo "❌ macOS tar.gz missing"
 
     - name: Run semantic release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        # Ensure we're in the root directory
+        cd $GITHUB_WORKSPACE
+        
         # Initialize version to 0.1.0 if this is the first release
         if ! git tag -l | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+' > /dev/null; then
           echo "No previous releases found. Initializing version to 0.1.0"
