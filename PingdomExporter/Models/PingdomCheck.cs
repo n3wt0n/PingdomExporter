@@ -1,7 +1,51 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace PingdomExporter.Models
 {
+    /// <summary>
+    /// Custom JSON converter to handle the type field which can be either a string or an object
+    /// depending on whether it's from the list API or details API
+    /// </summary>
+    public class FlexibleTypeConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return true;
+        }
+
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            var token = JToken.Load(reader);
+            
+            if (token.Type == JTokenType.String)
+            {
+                // Simple string type (from list API)
+                return token.ToString();
+            }
+            else if (token.Type == JTokenType.Object)
+            {
+                // Complex object type (from details API) - keep as JObject for flexibility
+                return token as JObject;
+            }
+            
+            // Fallback
+            return string.Empty;
+        }
+
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            if (value is string stringValue)
+            {
+                writer.WriteValue(stringValue);
+            }
+            else
+            {
+                serializer.Serialize(writer, value);
+            }
+        }
+    }
+
     public class PingdomCheck
     {
         [JsonProperty("id")]
@@ -20,7 +64,8 @@ namespace PingdomExporter.Models
         public int Resolution { get; set; }
 
         [JsonProperty("type")]
-        public CheckType Type { get; set; } = new();
+        [JsonConverter(typeof(FlexibleTypeConverter))]
+        public object Type { get; set; } = string.Empty;
 
         [JsonProperty("lasttesttime")]
         public long LastTestTime { get; set; }
@@ -71,16 +116,16 @@ namespace PingdomExporter.Models
     public class CheckType
     {
         [JsonProperty("http")]
-        public HttpCheckDetails? Http { get; set; }
+        public object? Http { get; set; }
 
         [JsonProperty("tcp")]
-        public TcpCheckDetails? Tcp { get; set; }
+        public object? Tcp { get; set; }
 
         [JsonProperty("ping")]
-        public PingCheckDetails? Ping { get; set; }
+        public object? Ping { get; set; }
 
         [JsonProperty("dns")]
-        public DnsCheckDetails? Dns { get; set; }
+        public object? Dns { get; set; }
     }
 
     public class HttpCheckDetails
