@@ -144,7 +144,7 @@ jobs:
         dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true --output ../temp-build/${{ matrix.runtime }}
         
         # Copy additional files
-        cp README.md appsettings.sample.json ../temp-build/${{ matrix.runtime }}/
+        cp ../README.md appsettings.sample.json ../temp-build/${{ matrix.runtime }}/
         
         # Copy platform-specific scripts
         for script in ${{ matrix.scripts }}; do
