@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.0](https://github.com/n3wt0n/PingdomExporter/compare/v0.3.0...v0.4.0) (2025-07-02)
+
+### 🚀 Features
+
+* Added a new export mode for UptimeRobot bulk import ([334d9cf](https://github.com/n3wt0n/PingdomExporter/commit/334d9cff7a9dd6d96f1c8b0fd1ede3b6736c3bdb))
+* added an option to include disabled checks, and defaulted to active-only ([045f338](https://github.com/n3wt0n/PingdomExporter/commit/045f33829b2a7904d14ddb461fbc679809ddf7b9))
+
+### 🐛 Bug Fixes
+
+* cleaned up redundant CLI options ([5dfe5f5](https://github.com/n3wt0n/PingdomExporter/commit/5dfe5f510132178c2d8c94010e5d89bf441c80a5))
+
 ## [0.3.0](https://github.com/n3wt0n/PingdomExporter/compare/v0.2.0...v0.3.0) (2025-07-02)
 
 ### 🚀 Features
