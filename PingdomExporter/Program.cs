@@ -140,6 +140,9 @@ namespace PingdomExporter
             if (!string.IsNullOrEmpty(cliConfig.OutputFormat))
                 baseConfig.OutputFormat = cliConfig.OutputFormat;
             
+            if (!string.IsNullOrEmpty(cliConfig.ExportMode))
+                baseConfig.ExportMode = cliConfig.ExportMode;
+            
             // Only override boolean values if they differ from defaults
             // This allows CLI to override file/env config
             if (cliConfig.ExportUptimeChecks != new ExportConfiguration().ExportUptimeChecks || 
@@ -184,6 +187,7 @@ namespace PingdomExporter
             Console.WriteLine($"Include Tags: {config.IncludeTags}");
             Console.WriteLine($"Include Teams: {config.IncludeTeams}");
             Console.WriteLine($"Output Format: {config.OutputFormat}");
+            Console.WriteLine($"Export Mode: {config.ExportMode}");
             Console.WriteLine($"Request Delay: {config.RequestDelayMs}ms");
             
             if (config.VerboseMode)

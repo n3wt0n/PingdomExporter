@@ -87,35 +87,42 @@ namespace PingdomExporter.Services
 
                 if (checksResponse.Checks.Any())
                 {
-                    // Export summary list
+                    // Always export summary list
                     await SaveDataAsync("uptime-checks-summary", checksResponse, summary);
+                    exportedCount = checksResponse.Checks.Count;
 
-                    // Export detailed information for each check
-                    Console.WriteLine("Fetching detailed information for uptime checks...");
-                    var detailedChecks = new List<PingdomCheck>();
-
-                    foreach (var check in checksResponse.Checks)
+                    // Export detailed information only if ExportMode is "Full"
+                    if (_config.ExportMode.Equals("Full", StringComparison.OrdinalIgnoreCase))
                     {
-                        try
-                        {
-                            await ((PingdomApiService)_apiService).DelayForRateLimitAsync();
-                            var detailedCheck = await _apiService.GetUptimeCheckDetailsAsync(check.Id);
-                            detailedChecks.Add(detailedCheck);
-                            exportedCount++;
+                        Console.WriteLine("Fetching detailed information for uptime checks...");
+                        var detailedChecks = new List<PingdomCheck>();
 
-                            if (exportedCount % 10 == 0)
-                                Console.WriteLine($"Processed {exportedCount}/{checksResponse.Checks.Count} uptime checks...");
-                        }
-                        catch (Exception ex)
+                        foreach (var check in checksResponse.Checks)
                         {
-                            var warning = $"Failed to fetch details for uptime check {check.Id}: {ex.Message}";
-                            summary.Warnings.Add(warning);
-                            Console.WriteLine($"Warning: {warning}");
+                            try
+                            {
+                                await ((PingdomApiService)_apiService).DelayForRateLimitAsync();
+                                var detailedCheck = await _apiService.GetUptimeCheckDetailsAsync(check.Id);
+                                detailedChecks.Add(detailedCheck);
+
+                                if (detailedChecks.Count % 10 == 0)
+                                    Console.WriteLine($"Processed {detailedChecks.Count}/{checksResponse.Checks.Count} uptime checks...");
+                            }
+                            catch (Exception ex)
+                            {
+                                var warning = $"Failed to fetch details for uptime check {check.Id}: {ex.Message}";
+                                summary.Warnings.Add(warning);
+                                Console.WriteLine($"Warning: {warning}");
+                            }
                         }
+
+                        // Export detailed checks
+                        await SaveDataAsync("uptime-checks-detailed", detailedChecks, summary);
                     }
-
-                    // Export detailed checks
-                    await SaveDataAsync("uptime-checks-detailed", detailedChecks, summary);
+                    else
+                    {
+                        Console.WriteLine($"Export mode is '{_config.ExportMode}' - skipping detailed uptime check information");
+                    }
                 }
 
                 return exportedCount;
@@ -136,35 +143,42 @@ namespace PingdomExporter.Services
 
                 if (checksResponse.Checks.Any())
                 {
-                    // Export summary list
+                    // Always export summary list
                     await SaveDataAsync("transaction-checks-summary", checksResponse, summary);
+                    exportedCount = checksResponse.Checks.Count;
 
-                    // Export detailed information for each check
-                    Console.WriteLine("Fetching detailed information for transaction checks...");
-                    var detailedChecks = new List<TmsCheck>();
-
-                    foreach (var check in checksResponse.Checks)
+                    // Export detailed information only if ExportMode is "Full"
+                    if (_config.ExportMode.Equals("Full", StringComparison.OrdinalIgnoreCase))
                     {
-                        try
-                        {
-                            await ((PingdomApiService)_apiService).DelayForRateLimitAsync();
-                            var detailedCheck = await _apiService.GetTransactionCheckDetailsAsync(check.Id);
-                            detailedChecks.Add(detailedCheck);
-                            exportedCount++;
+                        Console.WriteLine("Fetching detailed information for transaction checks...");
+                        var detailedChecks = new List<TmsCheck>();
 
-                            if (exportedCount % 5 == 0)
-                                Console.WriteLine($"Processed {exportedCount}/{checksResponse.Checks.Count} transaction checks...");
-                        }
-                        catch (Exception ex)
+                        foreach (var check in checksResponse.Checks)
                         {
-                            var warning = $"Failed to fetch details for transaction check {check.Id}: {ex.Message}";
-                            summary.Warnings.Add(warning);
-                            Console.WriteLine($"Warning: {warning}");
+                            try
+                            {
+                                await ((PingdomApiService)_apiService).DelayForRateLimitAsync();
+                                var detailedCheck = await _apiService.GetTransactionCheckDetailsAsync(check.Id);
+                                detailedChecks.Add(detailedCheck);
+
+                                if (detailedChecks.Count % 5 == 0)
+                                    Console.WriteLine($"Processed {detailedChecks.Count}/{checksResponse.Checks.Count} transaction checks...");
+                            }
+                            catch (Exception ex)
+                            {
+                                var warning = $"Failed to fetch details for transaction check {check.Id}: {ex.Message}";
+                                summary.Warnings.Add(warning);
+                                Console.WriteLine($"Warning: {warning}");
+                            }
                         }
+
+                        // Export detailed checks
+                        await SaveDataAsync("transaction-checks-detailed", detailedChecks, summary);
                     }
-
-                    // Export detailed checks
-                    await SaveDataAsync("transaction-checks-detailed", detailedChecks, summary);
+                    else
+                    {
+                        Console.WriteLine($"Export mode is '{_config.ExportMode}' - skipping detailed transaction check information");
+                    }
                 }
 
                 return exportedCount;

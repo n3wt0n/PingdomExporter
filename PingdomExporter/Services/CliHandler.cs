@@ -78,6 +78,13 @@ namespace PingdomExporter.Services
                 IsRequired = false
             };
 
+            var exportModeOption = new Option<string>(
+                aliases: new[] { "--export-mode", "-m" },
+                description: "Export mode: Full (includes details) or Summary (summary only)")
+            {
+                IsRequired = false
+            };
+
             // Export Options
             var exportUptimeOption = new Option<bool?>(
                 aliases: new[] { "--uptime" },
@@ -163,6 +170,7 @@ namespace PingdomExporter.Services
             rootCommand.AddOption(baseUrlOption);
             rootCommand.AddOption(outputDirOption);
             rootCommand.AddOption(outputFormatOption);
+            rootCommand.AddOption(exportModeOption);
             rootCommand.AddOption(exportUptimeOption);
             rootCommand.AddOption(noUptimeOption);
             rootCommand.AddOption(exportTransactionOption);
@@ -194,6 +202,9 @@ namespace PingdomExporter.Services
 
             if (parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--format"))) is string format)
                 config.OutputFormat = format;
+
+            if (parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--export-mode"))) is string exportMode)
+                config.ExportMode = exportMode;
 
             // Handle boolean options with negation support
             var exportUptime = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool?>>().First(o => o.HasAlias("--uptime")));

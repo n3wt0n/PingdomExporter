@@ -35,6 +35,24 @@ This application is now **production-ready** with all core features working:
 
 That's it! The application will export all your Pingdom monitor configurations.
 
+## Export Modes
+
+The application supports two export modes to balance between detail and performance:
+
+### Summary Mode (Default)
+- **Faster execution** - Only makes summary API calls, avoiding detailed check configuration requests
+- **Smaller output files** - Exports basic check information (ID, name, status, type, etc.)
+- **Lower API usage** - Respects rate limits and reduces API quota consumption
+- **Best for** - Regular backups, inventorying checks, or when full details aren't needed
+
+### Full Mode
+- **Complete details** - Makes additional API calls to fetch full configuration for each check
+- **Larger output files** - Includes all check parameters, settings, and metadata
+- **Higher API usage** - More comprehensive but uses more API quota
+- **Best for** - Migration planning, detailed analysis, or complete configuration backup
+
+You can switch between modes using the `--export-mode` parameter or by setting `ExportMode` in your configuration file.
+
 ## Prerequisites
 
 - .NET 9.0 or later
@@ -98,6 +116,12 @@ dotnet run -- --api-token "your_token" --no-transaction --auto
 # Export only transaction checks with custom delay
 dotnet run -- --api-token "your_token" --no-uptime --delay 2000 --auto
 
+# Summary mode (faster, less data) - only exports basic check information (default)
+dotnet run -- --api-token "your_token" --export-mode Summary --auto
+
+# Full mode (detailed) - exports all check details
+dotnet run -- --api-token "your_token" --export-mode Full --auto
+
 # Verbose output with specific API endpoint
 dotnet run -- --api-token "your_token" --base-url "https://api.pingdom.com/api/3.1" --verbose --auto
 
@@ -113,6 +137,7 @@ dotnet run -- --api-token "your_token" --no-tags --no-teams --auto
 | `-u` | `--base-url` | Pingdom API base URL | `--base-url "https://api.pingdom.com/api/3.1"` |
 | `-o` | `--output-dir` | Output directory for exported files | `--output-dir "exports"` |
 | `-f` | `--format` | Output format: json, csv, or both | `--format csv` |
+| `-m` | `--export-mode` | Export mode: Full or Summary | `--export-mode Summary` |
 | | `--uptime` | Export uptime checks (true/false) | `--uptime true` |
 | | `--no-uptime` | Skip exporting uptime checks | `--no-uptime` |
 | | `--transaction` | Export transaction checks (true/false) | `--transaction false` |
@@ -157,6 +182,7 @@ dotnet run -- --output-dir "/final/export/path" --auto
 | `IncludeTags` | Include tag information | `true` |
 | `IncludeTeams` | Include team assignments | `true` |
 | `OutputFormat` | Output format: `json`, `csv`, or `both` | `json` |
+| `ExportMode` | Export mode: `Full` or `Summary` | `Summary` |
 | `RequestDelayMs` | Delay between API requests (rate limiting) | `1000` |
 
 ## Environment Variables

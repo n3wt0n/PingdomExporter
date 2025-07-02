@@ -30,6 +30,7 @@ namespace PingdomExporter.Models
         public bool IncludeTags { get; set; } = true;
         public bool IncludeTeams { get; set; } = true;
         public string OutputFormat { get; set; } = "json"; // json, csv, both
+        public string ExportMode { get; set; } = "Summary"; // Full, Summary
         public int RequestDelayMs { get; set; } = 1000; // Delay between API requests to respect rate limits
         
         // CLI-specific properties (not in config file)
