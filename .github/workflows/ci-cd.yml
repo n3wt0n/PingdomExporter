@@ -9,6 +9,7 @@ on:
 env:
   DOTNET_VERSION: '9.x'
   PROJECT_PATH: './PingdomExporter'
+  PROJECT_TEST_PATH: './PingdomExporter.Tests'
 
 jobs:
   build:
@@ -41,7 +42,7 @@ jobs:
       run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
 
     - name: Run tests (if any)
-      run: dotnet test ${{ env.PROJECT_PATH }} --configuration Release --no-build --verbosity normal
+      run: dotnet test ${{ env.PROJECT_TEST_PATH }} --configuration Release --no-build --verbosity normal
       continue-on-error: true  # Continue if no tests exist
 
     - name: Create sample configuration
