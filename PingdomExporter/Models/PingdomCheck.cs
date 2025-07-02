@@ -19,15 +19,11 @@ namespace PingdomExporter.Models
             var token = JToken.Load(reader);
             
             if (token.Type == JTokenType.String)
-            {
                 // Simple string type (from list API)
                 return token.ToString();
-            }
             else if (token.Type == JTokenType.Object)
-            {
                 // Complex object type (from details API) - keep as JObject for flexibility
                 return token as JObject;
-            }
             
             // Fallback
             return string.Empty;
@@ -36,13 +32,9 @@ namespace PingdomExporter.Models
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             if (value is string stringValue)
-            {
                 writer.WriteValue(stringValue);
-            }
             else
-            {
                 serializer.Serialize(writer, value);
-            }
         }
     }
 

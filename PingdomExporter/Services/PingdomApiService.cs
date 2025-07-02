@@ -91,9 +91,7 @@ namespace PingdomExporter.Services
             };
 
             if (_config.IncludeTags)
-            {
                 queryParams.Add("include_tags=true");
-            }
 
             var queryString = string.Join("&", queryParams);
             var relativeUrl = $"checks?{queryString}";
@@ -114,9 +112,7 @@ namespace PingdomExporter.Services
             };
 
             if (_config.IncludeTags)
-            {
                 queryParams.Add("extended_tags=true");
-            }
 
             var queryString = string.Join("&", queryParams);
             var relativeUrl = $"tms/check?{queryString}";
@@ -134,9 +130,7 @@ namespace PingdomExporter.Services
             var queryParams = new List<string>();
             
             if (_config.IncludeTeams)
-            {
                 queryParams.Add("include_teams=true");
-            }
 
             var queryString = queryParams.Any() ? "?" + string.Join("&", queryParams) : "";
             var relativeUrl = $"checks/{checkId}{queryString}";
@@ -161,9 +155,7 @@ namespace PingdomExporter.Services
             var queryParams = new List<string>();
             
             if (_config.IncludeTags)
-            {
                 queryParams.Add("extended_tags=true");
-            }
 
             var queryString = queryParams.Any() ? "?" + string.Join("&", queryParams) : "";
             var relativeUrl = $"tms/check/{checkId}{queryString}";
@@ -204,9 +196,7 @@ namespace PingdomExporter.Services
         public async Task DelayForRateLimitAsync()
         {
             if (_config.RequestDelayMs > 0)
-            {
                 await Task.Delay(_config.RequestDelayMs);
-            }
         }
     }
 }

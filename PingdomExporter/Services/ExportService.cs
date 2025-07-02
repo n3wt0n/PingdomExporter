@@ -36,15 +36,11 @@ namespace PingdomExporter.Services
 
                 // Export uptime checks
                 if (_config.ExportUptimeChecks)
-                {
                     summary.UptimeChecksExported = await ExportUptimeChecksAsync(summary);
-                }
 
                 // Export transaction checks
                 if (_config.ExportTransactionChecks)
-                {
                     summary.TransactionChecksExported = await ExportTransactionChecksAsync(summary);
-                }
 
                 summary.TotalChecksExported = summary.UptimeChecksExported + summary.TransactionChecksExported;
                 summary.Duration = DateTime.UtcNow - startTime;
@@ -57,9 +53,7 @@ namespace PingdomExporter.Services
                 Console.WriteLine($"Duration: {summary.Duration.TotalSeconds:F2} seconds");
                 
                 if (summary.Warnings.Any())
-                {
                     Console.WriteLine($"Warnings: {summary.Warnings.Count}");
-                }
 
                 return summary;
             }
@@ -110,9 +104,7 @@ namespace PingdomExporter.Services
                             exportedCount++;
 
                             if (exportedCount % 10 == 0)
-                            {
                                 Console.WriteLine($"Processed {exportedCount}/{checksResponse.Checks.Count} uptime checks...");
-                            }
                         }
                         catch (Exception ex)
                         {
@@ -161,9 +153,7 @@ namespace PingdomExporter.Services
                             exportedCount++;
 
                             if (exportedCount % 5 == 0)
-                            {
                                 Console.WriteLine($"Processed {exportedCount}/{checksResponse.Checks.Count} transaction checks...");
-                            }
                         }
                         catch (Exception ex)
                         {

@@ -18,9 +18,7 @@ namespace PingdomExporter
                 var cliResult = await cliHandler.ParseAsync(args);
                 
                 if (cliResult.ShouldExit)
-                {
                     return cliResult.ExitCode;
-                }
 
                 // Build configuration from multiple sources
                 var configuration = new ConfigurationBuilder()
@@ -35,9 +33,7 @@ namespace PingdomExporter
                 
                 // Override with CLI values (CLI takes highest precedence)
                 if (cliResult.Configuration != null)
-                {
                     OverrideConfigurationFromCli(exportConfig, cliResult.Configuration);
-                }
 
                 // Validate configuration
                 if (string.IsNullOrWhiteSpace(exportConfig.ApiToken))
@@ -82,23 +78,17 @@ namespace PingdomExporter
                 DisplayResults(summary);
 
                 if (summary.Errors.Any())
-                {
                     return 1;
-                }
 
                 if (exportConfig.VerboseMode)
-                {
                     Console.WriteLine("\nExport completed successfully! 🎉");
-                }
                 return 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Unhandled error: {ex.Message}");
                 if (args.Contains("--verbose") || args.Contains("-v"))
-                {
                     Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                }
                 return 1;
             }
         }
