@@ -24,6 +24,7 @@ This application is now **production-ready** with all core features working:
 - ✅ **Export all transaction monitoring checks (TMS)** - Full transaction scripts and settings
 - ✅ **Fetch detailed configuration for each monitor** - Individual check configurations with all parameters
 - ✅ **Support for JSON and CSV output formats** - Choose your preferred export format
+- ✅ **UptimeRobot bulk import format** - Export checks in a format ready for direct UptimeRobot import
 - ✅ **Rate limiting to respect API limits** - Configurable delays between requests
 - ✅ **Comprehensive error handling and retry logic** - Robust error recovery and reporting
 - ✅ **Configurable export options** - Customizable via configuration files or environment variables
