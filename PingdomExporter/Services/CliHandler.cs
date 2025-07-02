@@ -80,7 +80,7 @@ namespace PingdomExporter.Services
 
             var exportModeOption = new Option<string>(
                 aliases: new[] { "--export-mode", "-m" },
-                description: "Export mode: Full (includes details) or Summary (summary only)")
+                description: "Export mode: Full (includes details), Summary (summary only), or UptimeRobot (UptimeRobot import format)")
             {
                 IsRequired = false
             };

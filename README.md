@@ -43,7 +43,7 @@ That's it! The application will export all your Pingdom monitor configurations.
 
 ## Export Modes
 
-The application supports two export modes to balance between detail and performance:
+The application supports three export modes to balance between detail, performance, and use case:
 
 ### Summary Mode (Default)
 - **Faster execution** - Only makes summary API calls, avoiding detailed check configuration requests
@@ -56,6 +56,13 @@ The application supports two export modes to balance between detail and performa
 - **Larger output files** - Includes all check parameters, settings, and metadata
 - **Higher API usage** - More comprehensive but uses more API quota
 - **Best for** - Migration planning, detailed analysis, or complete configuration backup
+
+### UptimeRobot Mode
+- **Migration-focused** - Converts Pingdom uptime checks to UptimeRobot import format
+- **CSV output only** - Generates a CSV file compatible with UptimeRobot bulk import
+- **Uptime checks only** - Only processes uptime checks (transaction checks are not supported by UptimeRobot)
+- **Direct import ready** - Output file can be uploaded directly to UptimeRobot for bulk import
+- **Best for** - Migrating from Pingdom to UptimeRobot
 
 You can switch between modes using the `--export-mode` parameter or by setting `ExportMode` in your configuration file.
 
@@ -128,6 +135,9 @@ dotnet run -- --api-token "your_token" --export-mode Summary --auto
 # Full mode (detailed) - exports all check details
 dotnet run -- --api-token "your_token" --export-mode Full --auto
 
+# UptimeRobot mode - generates CSV file for UptimeRobot bulk import
+dotnet run -- --api-token "your_token" --export-mode UptimeRobot --auto
+
 # Verbose output with specific API endpoint
 dotnet run -- --api-token "your_token" --base-url "https://api.pingdom.com/api/3.1" --verbose --auto
 
@@ -143,7 +153,7 @@ dotnet run -- --api-token "your_token" --no-tags --no-teams --auto
 | `-u` | `--base-url` | Pingdom API base URL | `--base-url "https://api.pingdom.com/api/3.1"` |
 | `-o` | `--output-dir` | Output directory for exported files | `--output-dir "exports"` |
 | `-f` | `--format` | Output format: json, csv, or both | `--format csv` |
-| `-m` | `--export-mode` | Export mode: Full or Summary | `--export-mode Summary` |
+| `-m` | `--export-mode` | Export mode: Full, Summary, or UptimeRobot | `--export-mode Summary` |
 | | `--uptime` | Export uptime checks (true/false) | `--uptime true` |
 | | `--no-uptime` | Skip exporting uptime checks | `--no-uptime` |
 | | `--transaction` | Export transaction checks (true/false) | `--transaction false` |
@@ -188,7 +198,7 @@ dotnet run -- --output-dir "/final/export/path" --auto
 | `IncludeTags` | Include tag information | `true` |
 | `IncludeTeams` | Include team assignments | `true` |
 | `OutputFormat` | Output format: `json`, `csv`, or `both` | `json` |
-| `ExportMode` | Export mode: `Full` or `Summary` | `Summary` |
+| `ExportMode` | Export mode: `Full`, `Summary`, or `UptimeRobot` | `Summary` |
 | `RequestDelayMs` | Delay between API requests (rate limiting) | `1000` |
 
 ## Environment Variables
@@ -220,6 +230,9 @@ The application generates several files in the output directory:
 
 ### Summary
 - `export-summary_YYYYMMDD-HHMMSS.json` - Export operation summary with statistics and any errors
+
+### UptimeRobot Import (UptimeRobot mode only)
+- `uptimerobot-import_YYYYMMDD-HHMMSS.csv` - CSV file ready for UptimeRobot bulk import
 
 ## Sample Output Structure
 

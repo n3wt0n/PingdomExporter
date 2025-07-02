@@ -119,6 +119,12 @@ namespace PingdomExporter.Services
                         // Export detailed checks
                         await SaveDataAsync("uptime-checks-detailed", detailedChecks, summary);
                     }
+                    else if (_config.ExportMode.Equals("UptimeRobot", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine("Converting checks to UptimeRobot import format...");
+                        var uptimeRobotMonitors = ConvertToUptimeRobotFormat(checksResponse.Checks);
+                        await SaveUptimeRobotImportFileAsync(uptimeRobotMonitors, summary);
+                    }
                     else
                     {
                         Console.WriteLine($"Export mode is '{_config.ExportMode}' - skipping detailed uptime check information");
@@ -293,6 +299,121 @@ namespace PingdomExporter.Services
             }
 
             return csv.ToString();
+        }
+
+        private List<UptimeRobotMonitor> ConvertToUptimeRobotFormat(List<PingdomCheck> checks)
+        {
+            var monitors = new List<UptimeRobotMonitor>();
+
+            foreach (var check in checks)
+            {
+                try
+                {
+                    var monitor = new UptimeRobotMonitor
+                    {
+                        FriendlyName = check.Name,
+                        Interval = Math.Max(60, check.Resolution * 60) // Convert minutes to seconds, min 60s
+                    };
+
+                    // For UptimeRobot conversion, we'll use the Type as string for basic mapping
+                    var typeString = check.Type?.ToString() ?? "http";
+                    
+                    // Map Pingdom check types to UptimeRobot types
+                    if (typeString.Contains("http", StringComparison.OrdinalIgnoreCase))
+                    {
+                        monitor.Type = "HTTP";
+                        monitor.UrlIp = GetHttpUrlFromCheck(check);
+                    }
+                    else if (typeString.Contains("ping", StringComparison.OrdinalIgnoreCase))
+                    {
+                        monitor.Type = "Ping";
+                        monitor.UrlIp = check.Hostname ?? string.Empty;
+                    }
+                    else if (typeString.Contains("tcp", StringComparison.OrdinalIgnoreCase))
+                    {
+                        monitor.Type = "Port";
+                        monitor.UrlIp = check.Hostname ?? string.Empty;
+                        // We can't get port info from summary, so leave empty
+                        monitor.Port = "";
+                    }
+                    else
+                    {
+                        // Default to HTTP for unknown types
+                        monitor.Type = "HTTP";
+                        monitor.UrlIp = GetHttpUrlFromCheck(check);
+                    }
+
+                    monitors.Add(monitor);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Warning: Failed to convert check {check.Id} to UptimeRobot format: {ex.Message}");
+                }
+            }
+
+            return monitors;
+        }
+
+        private string GetHttpUrlFromCheck(PingdomCheck check)
+        {
+            // For basic conversion, construct a simple HTTP URL
+            // This is a simplified approach since we're working with summary data
+            var hostname = check.Hostname ?? string.Empty;
+            
+            if (hostname.StartsWith("http://") || hostname.StartsWith("https://"))
+            {
+                return hostname;
+            }
+            
+            // Default to HTTPS for security
+            return $"https://{hostname}";
+        }
+
+        private async Task SaveUptimeRobotImportFileAsync(List<UptimeRobotMonitor> monitors, ExportSummary summary)
+        {
+            try
+            {
+                var timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
+                var fileName = $"uptimerobot-import_{timestamp}.csv";
+                var filePath = Path.Combine(_config.OutputDirectory, fileName);
+
+                var csv = new StringBuilder();
+                
+                // Add header row exactly as specified by UptimeRobot
+                csv.AppendLine("Type,\"Friendly Name\",URL/IP,Interval,\"Keyword Type\",\"Keyword Value\",Port");
+
+                // Add data rows
+                foreach (var monitor in monitors)
+                {
+                    var row = new[]
+                    {
+                        monitor.Type,
+                        $"\"{monitor.FriendlyName.Replace("\"", "\"\"")}\"",
+                        monitor.UrlIp,
+                        monitor.Interval.ToString(),
+                        monitor.KeywordType,
+                        monitor.KeywordValue,
+                        monitor.Port
+                    };
+                    
+                    csv.AppendLine(string.Join(",", row));
+                }
+
+                await File.WriteAllTextAsync(filePath, csv.ToString());
+                
+                Console.WriteLine($"UptimeRobot import file saved: {fileName}");
+                if (_config.VerboseMode)
+                {
+                    Console.WriteLine($"  File path: {filePath}");
+                    Console.WriteLine($"  Monitors exported: {monitors.Count}");
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = $"Failed to save UptimeRobot import file: {ex.Message}";
+                summary.Errors.Add(error);
+                Console.WriteLine($"Error: {error}");
+            }
         }
     }
 }

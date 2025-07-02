@@ -30,12 +30,23 @@ namespace PingdomExporter.Models
         public bool IncludeTags { get; set; } = true;
         public bool IncludeTeams { get; set; } = true;
         public string OutputFormat { get; set; } = "json"; // json, csv, both
-        public string ExportMode { get; set; } = "Summary"; // Full, Summary
+        public string ExportMode { get; set; } = "Summary"; // Full, Summary, UptimeRobot
         public int RequestDelayMs { get; set; } = 1000; // Delay between API requests to respect rate limits
         
         // CLI-specific properties (not in config file)
         public bool AutoMode { get; set; } = false;
         public bool VerboseMode { get; set; } = false;
+    }
+
+    public class UptimeRobotMonitor
+    {
+        public string Type { get; set; } = "HTTP";
+        public string FriendlyName { get; set; } = string.Empty;
+        public string UrlIp { get; set; } = string.Empty;
+        public int Interval { get; set; } = 300; // 5 minutes default
+        public string KeywordType { get; set; } = string.Empty;
+        public string KeywordValue { get; set; } = string.Empty;
+        public string Port { get; set; } = string.Empty;
     }
 
     public class ExportSummary
