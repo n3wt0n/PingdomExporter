@@ -9,10 +9,8 @@ namespace PingdomExporter.Models
     /// </summary>
     public class FlexibleTypeConverter : JsonConverter
     {
-        public override bool CanConvert(Type objectType)
-        {
-            return true;
-        }
+        public override bool CanConvert(Type objectType) =>
+            objectType == typeof(object) || objectType == typeof(string) || objectType == typeof(JObject);
 
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
