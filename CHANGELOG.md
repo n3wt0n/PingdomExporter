@@ -69,7 +69,6 @@ All notable changes to this project will be documented in this file. See [Conven
 
 - Complete README with usage instructions
 - API documentation and examples  
-- Platform-specific run scripts
 - Configuration options documentation
 - Troubleshooting guide
 - CI/CD pipeline documentation

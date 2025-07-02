@@ -14,9 +14,6 @@ PingdomExporter/
 ├── appsettings.sample.json  # Sample configuration template
 ├── README.md               # Complete documentation
 ├── .gitignore              # Git ignore file (protects sensitive data)
-├── run.bat                 # Windows batch script
-├── run.ps1                 # PowerShell script (recommended for Windows)
-├── run.sh                  # Bash script for Linux/macOS
 └── PingdomExporter.csproj  # Project file
 ```
 
@@ -49,7 +46,6 @@ PingdomExporter/
 
 ✅ **Cross-Platform Support**
 - .NET 9.0 for Windows, Linux, macOS
-- Platform-specific run scripts
 - Cross-platform file handling
 
 ✅ **Security Best Practices**
@@ -76,16 +72,7 @@ PingdomExporter/
 
 2. **Run the application:**
    ```bash
-   # Windows (PowerShell - recommended)
-   .\run.ps1
-   
-   # Windows (Command Prompt)
-   run.bat
-   
-   # Linux/macOS
-   ./run.sh
-   
-   # Or directly with .NET
+   # Use .NET directly
    dotnet run
    ```
 
