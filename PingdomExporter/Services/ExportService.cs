@@ -87,17 +87,30 @@ namespace PingdomExporter.Services
 
                 if (checksResponse.Checks.Any())
                 {
-                    // Always export summary list
-                    await SaveDataAsync("uptime-checks-summary", checksResponse, summary);
-                    exportedCount = checksResponse.Checks.Count;
+                    // Filter checks based on IncludeDisabledChecks setting
+                    var filteredChecks = FilterChecksByStatus(checksResponse.Checks);
+                    var filteredResponse = new PingdomChecksResponse
+                    {
+                        Checks = filteredChecks,
+                        Counts = checksResponse.Counts
+                    };
 
-                    // Export detailed information only if ExportMode is "Full"
+                    // Always export summary list
+                    await SaveDataAsync("uptime-checks-summary", filteredResponse, summary);
+                    exportedCount = filteredChecks.Count;
+
+                    if (_config.VerboseMode && checksResponse.Checks.Count != filteredChecks.Count)
+                    {
+                        Console.WriteLine($"Filtered out {checksResponse.Checks.Count - filteredChecks.Count} disabled/paused checks");
+                    }
+
+                    // Handle different export modes
                     if (_config.ExportMode.Equals("Full", StringComparison.OrdinalIgnoreCase))
                     {
                         Console.WriteLine("Fetching detailed information for uptime checks...");
                         var detailedChecks = new List<PingdomCheck>();
 
-                        foreach (var check in checksResponse.Checks)
+                        foreach (var check in filteredChecks)
                         {
                             try
                             {
@@ -106,7 +119,7 @@ namespace PingdomExporter.Services
                                 detailedChecks.Add(detailedCheck);
 
                                 if (detailedChecks.Count % 10 == 0)
-                                    Console.WriteLine($"Processed {detailedChecks.Count}/{checksResponse.Checks.Count} uptime checks...");
+                                    Console.WriteLine($"Processed {detailedChecks.Count}/{filteredChecks.Count} uptime checks...");
                             }
                             catch (Exception ex)
                             {
@@ -122,7 +135,7 @@ namespace PingdomExporter.Services
                     else if (_config.ExportMode.Equals("UptimeRobot", StringComparison.OrdinalIgnoreCase))
                     {
                         Console.WriteLine("Converting checks to UptimeRobot import format...");
-                        var uptimeRobotMonitors = ConvertToUptimeRobotFormat(checksResponse.Checks);
+                        var uptimeRobotMonitors = ConvertToUptimeRobotFormat(filteredChecks);
                         await SaveUptimeRobotImportFileAsync(uptimeRobotMonitors, summary);
                     }
                     else
@@ -414,6 +427,30 @@ namespace PingdomExporter.Services
                 summary.Errors.Add(error);
                 Console.WriteLine($"Error: {error}");
             }
+        }
+
+        private List<PingdomCheck> FilterChecksByStatus(List<PingdomCheck> checks)
+        {
+            if (_config.IncludeDisabledChecks)
+            {
+                // Include all checks
+                return checks;
+            }
+            
+            // Only include checks with status "up" (active checks)
+            var filteredChecks = checks.Where(check => 
+                check.Status.Equals("up", StringComparison.OrdinalIgnoreCase)).ToList();
+                
+            if (_config.VerboseMode)
+            {
+                var excludedCount = checks.Count - filteredChecks.Count;
+                if (excludedCount > 0)
+                {
+                    Console.WriteLine($"Excluding {excludedCount} checks that are not 'up' (disabled/paused/down checks)");
+                }
+            }
+            
+            return filteredChecks;
         }
     }
 }

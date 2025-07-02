@@ -143,6 +143,9 @@ dotnet run -- --api-token "your_token" --base-url "https://api.pingdom.com/api/3
 
 # Skip tags and teams information
 dotnet run -- --api-token "your_token" --no-tags --no-teams --auto
+
+# Include disabled/paused checks in export
+dotnet run -- --api-token "your_token" --include-disabled --auto
 ```
 
 #### All CLI Options
@@ -162,6 +165,7 @@ dotnet run -- --api-token "your_token" --no-tags --no-teams --auto
 | | `--no-tags` | Skip tag information | `--no-tags` |
 | | `--include-teams` | Include team assignments (true/false) | `--include-teams true` |
 | | `--no-teams` | Skip team assignments | `--no-teams` |
+| | `--include-disabled` | Include disabled/paused checks | `--include-disabled` |
 | `-d` | `--delay` | Delay between API requests in milliseconds | `--delay 1500` |
 | `-y` | `--auto` | Run automatically without prompts | `--auto` |
 | `-v` | `--verbose` | Enable verbose output | `--verbose` |

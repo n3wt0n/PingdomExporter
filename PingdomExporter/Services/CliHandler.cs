@@ -142,6 +142,13 @@ namespace PingdomExporter.Services
                 IsRequired = false
             };
 
+            var includeDisabledOption = new Option<bool>(
+                aliases: new[] { "--include-disabled" },
+                description: "Include disabled/paused checks")
+            {
+                IsRequired = false
+            };
+
             // Performance Options
             var delayOption = new Option<int?>(
                 aliases: new[] { "--delay", "-d" },
@@ -179,6 +186,7 @@ namespace PingdomExporter.Services
             rootCommand.AddOption(noTagsOption);
             rootCommand.AddOption(includeTeamsOption);
             rootCommand.AddOption(noTeamsOption);
+            rootCommand.AddOption(includeDisabledOption);
             rootCommand.AddOption(delayOption);
             rootCommand.AddOption(autoOption);
             rootCommand.AddOption(verboseOption);
@@ -226,6 +234,9 @@ namespace PingdomExporter.Services
             var noTeams = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool>>().First(o => o.HasAlias("--no-teams")));
             if (includeTeams.HasValue) config.IncludeTeams = includeTeams.Value;
             else if (noTeams) config.IncludeTeams = false;
+
+            var includeDisabled = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool>>().First(o => o.HasAlias("--include-disabled")));
+            if (includeDisabled) config.IncludeDisabledChecks = true;
 
             if (parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<int?>>().First(o => o.HasAlias("--delay"))) is int delay)
                 config.RequestDelayMs = delay;

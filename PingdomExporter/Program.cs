@@ -161,6 +161,10 @@ namespace PingdomExporter
                 HasExplicitBooleanFlag(cliConfig, nameof(ExportConfiguration.IncludeTeams)))
                 baseConfig.IncludeTeams = cliConfig.IncludeTeams;
             
+            if (cliConfig.IncludeDisabledChecks != new ExportConfiguration().IncludeDisabledChecks || 
+                HasExplicitBooleanFlag(cliConfig, nameof(ExportConfiguration.IncludeDisabledChecks)))
+                baseConfig.IncludeDisabledChecks = cliConfig.IncludeDisabledChecks;
+            
             if (cliConfig.RequestDelayMs != new ExportConfiguration().RequestDelayMs)
                 baseConfig.RequestDelayMs = cliConfig.RequestDelayMs;
             
@@ -188,6 +192,7 @@ namespace PingdomExporter
             Console.WriteLine($"Include Teams: {config.IncludeTeams}");
             Console.WriteLine($"Output Format: {config.OutputFormat}");
             Console.WriteLine($"Export Mode: {config.ExportMode}");
+            Console.WriteLine($"Include Disabled Checks: {config.IncludeDisabledChecks}");
             Console.WriteLine($"Request Delay: {config.RequestDelayMs}ms");
             
             if (config.VerboseMode)
