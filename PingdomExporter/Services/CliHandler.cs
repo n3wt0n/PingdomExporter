@@ -85,24 +85,10 @@ namespace PingdomExporter.Services
                 IsRequired = false
             };
 
-            // Export Options
-            var exportUptimeOption = new Option<bool?>(
-                aliases: new[] { "--uptime" },
-                description: "Export uptime checks (true/false)")
-            {
-                IsRequired = false
-            };
-
+            // Export Options (negative flags for features enabled by default)
             var noUptimeOption = new Option<bool>(
                 aliases: new[] { "--no-uptime" },
                 description: "Skip exporting uptime checks")
-            {
-                IsRequired = false
-            };
-
-            var exportTransactionOption = new Option<bool?>(
-                aliases: new[] { "--transaction" },
-                description: "Export transaction checks (true/false)")
             {
                 IsRequired = false
             };
@@ -114,23 +100,9 @@ namespace PingdomExporter.Services
                 IsRequired = false
             };
 
-            var includeTagsOption = new Option<bool?>(
-                aliases: new[] { "--include-tags" },
-                description: "Include tag information (true/false)")
-            {
-                IsRequired = false
-            };
-
             var noTagsOption = new Option<bool>(
                 aliases: new[] { "--no-tags" },
                 description: "Skip tag information")
-            {
-                IsRequired = false
-            };
-
-            var includeTeamsOption = new Option<bool?>(
-                aliases: new[] { "--include-teams" },
-                description: "Include team assignments (true/false)")
             {
                 IsRequired = false
             };
@@ -178,13 +150,9 @@ namespace PingdomExporter.Services
             rootCommand.AddOption(outputDirOption);
             rootCommand.AddOption(outputFormatOption);
             rootCommand.AddOption(exportModeOption);
-            rootCommand.AddOption(exportUptimeOption);
             rootCommand.AddOption(noUptimeOption);
-            rootCommand.AddOption(exportTransactionOption);
             rootCommand.AddOption(noTransactionOption);
-            rootCommand.AddOption(includeTagsOption);
             rootCommand.AddOption(noTagsOption);
-            rootCommand.AddOption(includeTeamsOption);
             rootCommand.AddOption(noTeamsOption);
             rootCommand.AddOption(includeDisabledOption);
             rootCommand.AddOption(delayOption);
@@ -214,26 +182,18 @@ namespace PingdomExporter.Services
             if (parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--export-mode"))) is string exportMode)
                 config.ExportMode = exportMode;
 
-            // Handle boolean options with negation support
-            var exportUptime = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool?>>().First(o => o.HasAlias("--uptime")));
+            // Handle boolean options (negative flags only for features enabled by default)
             var noUptime = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool>>().First(o => o.HasAlias("--no-uptime")));
-            if (exportUptime.HasValue) config.ExportUptimeChecks = exportUptime.Value;
-            else if (noUptime) config.ExportUptimeChecks = false;
+            if (noUptime) config.ExportUptimeChecks = false;
 
-            var exportTransaction = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool?>>().First(o => o.HasAlias("--transaction")));
             var noTransaction = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool>>().First(o => o.HasAlias("--no-transaction")));
-            if (exportTransaction.HasValue) config.ExportTransactionChecks = exportTransaction.Value;
-            else if (noTransaction) config.ExportTransactionChecks = false;
+            if (noTransaction) config.ExportTransactionChecks = false;
 
-            var includeTags = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool?>>().First(o => o.HasAlias("--include-tags")));
             var noTags = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool>>().First(o => o.HasAlias("--no-tags")));
-            if (includeTags.HasValue) config.IncludeTags = includeTags.Value;
-            else if (noTags) config.IncludeTags = false;
+            if (noTags) config.IncludeTags = false;
 
-            var includeTeams = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool?>>().First(o => o.HasAlias("--include-teams")));
             var noTeams = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool>>().First(o => o.HasAlias("--no-teams")));
-            if (includeTeams.HasValue) config.IncludeTeams = includeTeams.Value;
-            else if (noTeams) config.IncludeTeams = false;
+            if (noTeams) config.IncludeTeams = false;
 
             var includeDisabled = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool>>().First(o => o.HasAlias("--include-disabled")));
             if (includeDisabled) config.IncludeDisabledChecks = true;

@@ -157,13 +157,9 @@ dotnet run -- --api-token "your_token" --include-disabled --auto
 | `-o` | `--output-dir` | Output directory for exported files | `--output-dir "exports"` |
 | `-f` | `--format` | Output format: json, csv, or both | `--format csv` |
 | `-m` | `--export-mode` | Export mode: Full, Summary, or UptimeRobot | `--export-mode Summary` |
-| | `--uptime` | Export uptime checks (true/false) | `--uptime true` |
 | | `--no-uptime` | Skip exporting uptime checks | `--no-uptime` |
-| | `--transaction` | Export transaction checks (true/false) | `--transaction false` |
 | | `--no-transaction` | Skip exporting transaction checks | `--no-transaction` |
-| | `--include-tags` | Include tag information (true/false) | `--include-tags false` |
 | | `--no-tags` | Skip tag information | `--no-tags` |
-| | `--include-teams` | Include team assignments (true/false) | `--include-teams true` |
 | | `--no-teams` | Skip team assignments | `--no-teams` |
 | | `--include-disabled` | Include disabled/paused checks | `--include-disabled` |
 | `-d` | `--delay` | Delay between API requests in milliseconds | `--delay 1500` |
