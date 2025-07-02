@@ -22,7 +22,7 @@ namespace PingdomExporter
 
                 // Build configuration from multiple sources
                 var configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .SetBasePath(AppContext.BaseDirectory)
                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .AddEnvironmentVariables("PINGDOM_")
                     .AddCommandLine(args)
