@@ -1,20 +1,40 @@
 # Project Structure
 
 ```
-PingdomExporter/
+PingdomExporter/                 # Main project directory
 ├── Models/
-│   ├── PingdomCheck.cs      # Data models for uptime checks
-│   ├── TmsCheck.cs          # Data models for transaction checks
-│   └── Common.cs            # Common models and configuration
+│   ├── PingdomCheck.cs          # Data models for uptime checks
+│   ├── TmsCheck.cs              # Data models for transaction checks
+│   └── Common.cs                # Common models and configuration
 ├── Services/
-│   ├── PingdomApiService.cs # API communication service
-│   └── ExportService.cs     # Export logic and file operations
-├── Program.cs               # Main application entry point
-├── appsettings.json         # Configuration file (with your API token)
-├── appsettings.sample.json  # Sample configuration template
-├── README.md               # Complete documentation
-├── .gitignore              # Git ignore file (protects sensitive data)
-└── PingdomExporter.csproj  # Project file
+│   ├── PingdomApiService.cs     # API communication service
+│   ├── ExportService.cs         # Export logic and file operations
+│   └── CliHandler.cs            # Command-line interface handler
+├── Program.cs                   # Main application entry point
+├── appsettings.json             # Configuration file (with your API token)
+├── appsettings.sample.json      # Sample configuration template
+├── PROJECT_STRUCTURE.md         # This documentation file
+├── .gitignore                   # Git ignore file (protects sensitive data)
+└── PingdomExporter.csproj       # Project file
+```
+
+## Root Directory Structure
+
+```
+c:\Prj\pingdomexport/
+├── .git/                        # Git repository metadata
+├── .github/                     # GitHub workflows and templates
+├── .gitignore                   # Root git ignore file
+├── .releaserc.json              # Semantic release configuration
+├── CHANGELOG.md                 # Project changelog
+├── CONTRIBUTING.md              # Contribution guidelines
+├── LICENSE                      # Project license
+├── package.json                 # NPM package configuration (for CI/CD)
+├── pingdomexport.sln            # Visual Studio solution file
+├── PingdomExporter/             # Main project directory (see above)
+├── README.md                    # Main project documentation
+└── Tests/
+    └── checks.http              # HTTP test requests for API testing
 ```
 
 ## Features Implemented
@@ -36,6 +56,13 @@ PingdomExporter/
 - Environment variable support
 - Command-line argument support
 - Validation and error messages
+
+✅ **Command-Line Interface**
+- Comprehensive CLI argument support with System.CommandLine
+- Help documentation and version information
+- Configuration via CLI, environment variables, or config files
+- Auto mode for unattended execution
+- Verbose output mode for debugging
 
 ✅ **Export Features**
 - Detailed and summary exports
@@ -72,8 +99,17 @@ PingdomExporter/
 
 2. **Run the application:**
    ```bash
-   # Use .NET directly
+   # Basic usage
    dotnet run
+   
+   # With CLI arguments (auto mode)
+   dotnet run -- --api-token "your_token" --auto
+   
+   # Show help
+   dotnet run -- --help
+   
+   # Verbose output with custom settings
+   dotnet run -- --api-token "token" --output-dir "backup" --verbose --auto
    ```
 
 3. **View exported data:**
@@ -131,6 +167,20 @@ Key settings:
 - `RequestDelayMs` - Delay between API calls for rate limiting
 - `ExportUptimeChecks` - Enable/disable uptime check export
 - `ExportTransactionChecks` - Enable/disable transaction check export
+
+## Technical Dependencies
+
+### NuGet Packages
+- **Microsoft.Extensions.Configuration** (9.0.6) - Configuration framework
+- **Microsoft.Extensions.Configuration.CommandLine** (9.0.6) - CLI configuration support
+- **Microsoft.Extensions.Configuration.EnvironmentVariables** (9.0.6) - Environment variable support
+- **Microsoft.Extensions.Configuration.Json** (9.0.6) - JSON configuration file support
+- **Microsoft.Extensions.Http** (9.0.6) - HTTP client factory and services
+- **Newtonsoft.Json** (13.0.3) - JSON serialization/deserialization
+- **System.CommandLine** (2.0.0-beta4.22272.1) - Modern command-line interface
+
+### Framework
+- **.NET 9.0** - Target framework for cross-platform compatibility
 
 ## Next Steps
 
