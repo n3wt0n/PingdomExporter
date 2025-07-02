@@ -1,5 +1,11 @@
 # Pingdom Monitor Configuration Exporter
 
+[![Build and Test](https://github.com/n3wt0n/PingdomExporter/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/n3wt0n/PingdomExporter/actions/workflows/ci-cd.yml)
+[![Latest Release](https://img.shields.io/github/v/release/n3wt0n/PingdomExporter?include_prereleases&sort=semver)](https://github.com/n3wt0n/PingdomExporter/releases/latest)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-9.0-purple)](https://dotnet.microsoft.com/download/dotnet/9.0)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](#cross-platform-support)
+
 A robust .NET console application that connects to the Pingdom API and downloads monitor configurations for backup, migration, or analysis purposes.
 
 ## 🎉 Status: **FULLY FUNCTIONAL**
