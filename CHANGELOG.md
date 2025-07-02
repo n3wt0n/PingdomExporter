@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.0](https://github.com/n3wt0n/PingdomExporter/compare/v0.2.0...v0.3.0) (2025-07-02)
+
+### 🚀 Features
+
+* added Export Mode ([1f2945c](https://github.com/n3wt0n/PingdomExporter/commit/1f2945c81d528232affa22faa946868a228d1b43))
+
 ## [0.2.0](https://github.com/n3wt0n/PingdomExporter/compare/v0.1.0...v0.2.0) (2025-07-01)
 
 ### 🚀 Features
