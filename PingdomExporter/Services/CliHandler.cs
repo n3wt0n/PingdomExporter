@@ -164,23 +164,38 @@ namespace PingdomExporter.Services
 
         private ExportConfiguration ExtractConfiguration(ParseResult parseResult)
         {
-            var config = new ExportConfiguration();
+            // Create a configuration object with empty values - only set what was explicitly provided via CLI
+            var config = new ExportConfiguration
+            {
+                ApiToken = string.Empty,
+                BaseUrl = string.Empty,
+                OutputDirectory = string.Empty,
+                OutputFormat = string.Empty,
+                ExportMode = string.Empty,
+                // Keep boolean defaults as they are since they have special handling
+                RequestDelayMs = 1000 // This will be overridden only if --delay is provided
+            };
 
-            // Extract values from command line
-            if (parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--api-token"))) is string apiToken)
-                config.ApiToken = apiToken;
+            // Extract values from command line - only set if explicitly provided
+            var apiTokenOption = _rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--api-token"));
+            if (parseResult.FindResultFor(apiTokenOption) != null)
+                config.ApiToken = parseResult.GetValueForOption(apiTokenOption) ?? string.Empty;
 
-            if (parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--base-url"))) is string baseUrl)
-                config.BaseUrl = baseUrl;
+            var baseUrlOption = _rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--base-url"));
+            if (parseResult.FindResultFor(baseUrlOption) != null)
+                config.BaseUrl = parseResult.GetValueForOption(baseUrlOption) ?? string.Empty;
 
-            if (parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--output-dir"))) is string outputDir)
-                config.OutputDirectory = outputDir;
+            var outputDirOption = _rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--output-dir"));
+            if (parseResult.FindResultFor(outputDirOption) != null)
+                config.OutputDirectory = parseResult.GetValueForOption(outputDirOption) ?? string.Empty;
 
-            if (parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--format"))) is string format)
-                config.OutputFormat = format;
+            var formatOption = _rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--format"));
+            if (parseResult.FindResultFor(formatOption) != null)
+                config.OutputFormat = parseResult.GetValueForOption(formatOption) ?? string.Empty;
 
-            if (parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--export-mode"))) is string exportMode)
-                config.ExportMode = exportMode;
+            var exportModeOption = _rootCommand.Options.OfType<Option<string>>().First(o => o.HasAlias("--export-mode"));
+            if (parseResult.FindResultFor(exportModeOption) != null)
+                config.ExportMode = parseResult.GetValueForOption(exportModeOption) ?? string.Empty;
 
             // Handle boolean options (negative flags only for features enabled by default)
             var noUptime = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool>>().First(o => o.HasAlias("--no-uptime")));
@@ -198,7 +213,8 @@ namespace PingdomExporter.Services
             var includeDisabled = parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<bool>>().First(o => o.HasAlias("--include-disabled")));
             if (includeDisabled) config.IncludeDisabledChecks = true;
 
-            if (parseResult.GetValueForOption(_rootCommand.Options.OfType<Option<int?>>().First(o => o.HasAlias("--delay"))) is int delay)
+            var delayOption = _rootCommand.Options.OfType<Option<int?>>().First(o => o.HasAlias("--delay"));
+            if (parseResult.FindResultFor(delayOption) != null && parseResult.GetValueForOption(delayOption) is int delay)
                 config.RequestDelayMs = delay;
 
             // Special handling for auto and verbose flags
