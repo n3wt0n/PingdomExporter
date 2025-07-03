@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http;
 using PingdomExporter.Models;
 using PingdomExporter.Services;
 using System.Net.Http.Headers;

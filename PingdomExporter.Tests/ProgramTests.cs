@@ -3,11 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using PingdomExporter.Models;
 using PingdomExporter.Services;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System;
-using System.Linq;
 using System.Collections.Generic;
+using System;
 
 namespace PingdomExporter.Tests
 {
