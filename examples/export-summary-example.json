@@ -1,0 +1,88 @@
+{
+  "exportDate": "2025-01-03T14:30:22.1234567Z",
+  "duration": "00:00:45.2341234",
+  "configuration": {
+    "exportMode": "Summary",
+    "outputFormat": "json",
+    "exportUptimeChecks": true,
+    "exportTransactionChecks": true,
+    "includeTags": true,
+    "includeTeams": true,
+    "includeDisabledChecks": false,
+    "requestDelayMs": 1000
+  },
+  "uptimeChecksExported": 15,
+  "transactionChecksExported": 8,
+  "totalChecksExported": 23,
+  "apiCallsMade": 25,
+  "totalDataTransferred": "2.3 MB",
+  "outputFiles": [
+    "uptime-checks-summary_20250103-143022.json",
+    "transaction-checks-summary_20250103-143022.json",
+    "export-summary_20250103-143022.json"
+  ],
+  "statistics": {
+    "uptimeChecks": {
+      "total": 15,
+      "byStatus": {
+        "up": 12,
+        "down": 1,
+        "paused": 2
+      },
+      "byType": {
+        "http": 10,
+        "https": 3,
+        "tcp": 1,
+        "ping": 1
+      },
+      "averageResponseTime": 245
+    },
+    "transactionChecks": {
+      "total": 8,
+      "byStatus": {
+        "up": 6,
+        "down": 1,
+        "paused": 1
+      },
+      "byRegion": {
+        "us-east": 3,
+        "us-west": 2,
+        "eu-west": 2,
+        "asia-pacific": 1
+      },
+      "averageResponseTime": 2890
+    },
+    "tags": {
+      "totalUnique": 12,
+      "mostUsed": [
+        "production",
+        "api",
+        "critical"
+      ]
+    },
+    "teams": {
+      "totalUnique": 4,
+      "checksPerTeam": {
+        "Frontend Team": 8,
+        "Backend Team": 6,
+        "DevOps Team": 5,
+        "QA Team": 4
+      }
+    }
+  },
+  "warnings": [
+    "Check 'Old Legacy System' (ID: 98765432) has been paused for more than 30 days",
+    "Check 'Test API Endpoint' (ID: 87654321) has no tags assigned"
+  ],
+  "errors": [
+    "Failed to fetch detailed configuration for check 'Broken Monitor' (ID: 11111111): HTTP 404 Not Found"
+  ],
+  "performance": {
+    "checksPerSecond": 0.51,
+    "averageApiResponseTime": 234,
+    "rateLimitHits": 0,
+    "retries": 1
+  },
+  "exportSuccess": true,
+  "message": "Export completed successfully with 1 error and 2 warnings. See details above."
+}

@@ -1,0 +1,263 @@
+{
+  "checks": [
+    {
+      "id": 45678901,
+      "name": "User Login Flow",
+      "active": true,
+      "created": 1672531200,
+      "modified": 1704067200,
+      "region": "us-east",
+      "interval": 10,
+      "custom_message": "Login process is failing",
+      "severity_level": "HIGH",
+      "tags": [
+        {
+          "name": "authentication",
+          "type": "t"
+        },
+        {
+          "name": "critical-path",
+          "type": "t"
+        }
+      ],
+      "teams": [
+        {
+          "id": 123456,
+          "name": "Frontend Team"
+        }
+      ],
+      "integrationids": [
+        111222,
+        333444
+      ],
+      "steps": [
+        {
+          "fn": "go_to",
+          "args": {
+            "url": "https://example.com/login"
+          }
+        },
+        {
+          "fn": "fill",
+          "args": {
+            "input": "#username",
+            "value": "testuser@example.com"
+          }
+        },
+        {
+          "fn": "fill",
+          "args": {
+            "input": "#password",
+            "value": "********"
+          }
+        },
+        {
+          "fn": "click",
+          "args": {
+            "element": "#login-button"
+          }
+        },
+        {
+          "fn": "wait_for_element",
+          "args": {
+            "element": ".dashboard",
+            "timeout": 10000
+          }
+        }
+      ],
+      "status": {
+        "name": "up",
+        "lastchange": 1704067200,
+        "lasttest": 1704153600
+      },
+      "performance": {
+        "avgresponse": 2340,
+        "resolution": 10
+      }
+    },
+    {
+      "id": 56789012,
+      "name": "E-commerce Checkout",
+      "active": true,
+      "created": 1672531200,
+      "modified": 1704067200,
+      "region": "eu-west",
+      "interval": 15,
+      "custom_message": "Checkout process experiencing issues",
+      "severity_level": "HIGH",
+      "tags": [
+        {
+          "name": "ecommerce",
+          "type": "t"
+        },
+        {
+          "name": "revenue-critical",
+          "type": "t"
+        }
+      ],
+      "teams": [
+        {
+          "id": 123456,
+          "name": "E-commerce Team"
+        },
+        {
+          "id": 789012,
+          "name": "Payment Team"
+        }
+      ],
+      "integrationids": [
+        111222
+      ],
+      "steps": [
+        {
+          "fn": "go_to",
+          "args": {
+            "url": "https://shop.example.com/products/test-item"
+          }
+        },
+        {
+          "fn": "click",
+          "args": {
+            "element": ".add-to-cart"
+          }
+        },
+        {
+          "fn": "wait_for_element",
+          "args": {
+            "element": ".cart-notification",
+            "timeout": 5000
+          }
+        },
+        {
+          "fn": "go_to",
+          "args": {
+            "url": "https://shop.example.com/cart"
+          }
+        },
+        {
+          "fn": "click",
+          "args": {
+            "element": ".checkout-button"
+          }
+        },
+        {
+          "fn": "fill",
+          "args": {
+            "input": "#email",
+            "value": "test@example.com"
+          }
+        },
+        {
+          "fn": "fill",
+          "args": {
+            "input": "#card-number",
+            "value": "4111111111111111"
+          }
+        },
+        {
+          "fn": "click",
+          "args": {
+            "element": "#complete-order"
+          }
+        },
+        {
+          "fn": "wait_for_element",
+          "args": {
+            "element": ".order-confirmation",
+            "timeout": 15000
+          }
+        }
+      ],
+      "status": {
+        "name": "up",
+        "lastchange": 1704067200,
+        "lasttest": 1704153600
+      },
+      "performance": {
+        "avgresponse": 4560,
+        "resolution": 15
+      }
+    },
+    {
+      "id": 67890123,
+      "name": "API Integration Test",
+      "active": true,
+      "created": 1672531200,
+      "modified": 1704067200,
+      "region": "us-west",
+      "interval": 5,
+      "custom_message": "API integration failing",
+      "severity_level": "MEDIUM",
+      "tags": [
+        {
+          "name": "api",
+          "type": "t"
+        },
+        {
+          "name": "integration",
+          "type": "t"
+        }
+      ],
+      "teams": [
+        {
+          "id": 456789,
+          "name": "Backend Team"
+        }
+      ],
+      "integrationids": [
+        555666
+      ],
+      "steps": [
+        {
+          "fn": "go_to",
+          "args": {
+            "url": "https://api.example.com/auth"
+          }
+        },
+        {
+          "fn": "http_request",
+          "args": {
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\"username\":\"api_test\",\"password\":\"********\"}"
+          }
+        },
+        {
+          "fn": "extract",
+          "args": {
+            "variable": "auth_token",
+            "source": "response",
+            "regex": "\"token\":\"([^\"]+)\""
+          }
+        },
+        {
+          "fn": "http_request",
+          "args": {
+            "method": "GET",
+            "url": "https://api.example.com/data",
+            "headers": {
+              "Authorization": "Bearer ${auth_token}"
+            }
+          }
+        },
+        {
+          "fn": "assert",
+          "args": {
+            "condition": "response.status == 200"
+          }
+        }
+      ],
+      "status": {
+        "name": "up",
+        "lastchange": 1704067200,
+        "lasttest": 1704153600
+      },
+      "performance": {
+        "avgresponse": 890,
+        "resolution": 5
+      }
+    }
+  ]
+}
