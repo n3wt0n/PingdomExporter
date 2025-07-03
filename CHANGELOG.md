@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/n3wt0n/PingdomExporter/compare/v1.0.0...v1.0.1) (2025-07-03)
+
+### 🐛 Bug Fixes
+
+* soled issue for uptime robot export [#2](https://github.com/n3wt0n/PingdomExporter/issues/2) ([b1d681d](https://github.com/n3wt0n/PingdomExporter/commit/b1d681de5e598a0bf4109c58971248bf7a08aeff))
+
 ## [1.0.0](https://github.com/n3wt0n/PingdomExporter/compare/v0.5.2...v1.0.0) (2025-07-03)
 
 ### ⚠ BREAKING CHANGES
