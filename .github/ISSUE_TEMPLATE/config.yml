@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/n3wt0n/PingdomExporter/blob/main/README.md
+    about: Check the README for setup instructions and usage examples
+  - name: 🤝 Discussions
+    url: https://github.com/n3wt0n/PingdomExporter/discussions
+    about: Ask questions, share ideas, or discuss the project with the community
+  - name: 📖 Pingdom API Documentation
+    url: https://docs.pingdom.com/api/
+    about: Official Pingdom API documentation for reference

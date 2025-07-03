@@ -1,5 +1,7 @@
 # Project Structure
 
+## Main Project Directory
+
 ```
 PingdomExporter/                 # Main project directory
 ├── Models/
@@ -21,7 +23,7 @@ PingdomExporter/                 # Main project directory
 ## Root Directory Structure
 
 ```
-c:\Prj\pingdomexport/
+PingdomExporter/                 # Repository root
 ├── .git/                        # Git repository metadata
 ├── .github/                     # GitHub workflows and templates
 ├── .gitignore                   # Root git ignore file
@@ -32,163 +34,63 @@ c:\Prj\pingdomexport/
 ├── package.json                 # NPM package configuration (for CI/CD)
 ├── pingdomexport.sln            # Visual Studio solution file
 ├── PingdomExporter/             # Main project directory (see above)
-├── README.md                    # Main project documentation
-└── Tests/
-    └── checks.http              # HTTP test requests for API testing
+├── PingdomExporter.Tests/       # Test project directory (see below)
+├── PingdomExporter.HttpTests/   # HTTP test requests for API testing
+│   └── checks.http              # HTTP test file
+└── README.md                    # Main project documentation
 ```
 
-## Features Implemented
+## Test Project Structure
 
-✅ **Complete Pingdom API Integration**
-- Uptime checks export with full configuration details
-- Transaction checks (TMS) export with steps and metadata
-- Proper authentication using Bearer tokens
-- Rate limiting to respect API limits
+```
+PingdomExporter.Tests/           # Test project directory
+├── Models/
+│   ├── CommonTests.cs           # Tests for common models and configuration
+│   ├── PingdomCheckTests.cs     # Tests for uptime check models
+│   └── TmsCheckTests.cs         # Tests for transaction check models
+├── Services/
+│   └── CliHandlerTests.cs       # Tests for CLI argument parsing
+├── ProgramTests.cs              # Integration and dependency injection tests
+└── PingdomExporter.Tests.csproj # Test project file
+```
+
+## Test Organization
+
+### Test Coverage by File
+- **CliHandlerTests.cs** (42 tests) - CLI argument parsing, validation, help/version commands
+- **CommonTests.cs** (47 tests) - Configuration models, error handling, export summaries, UptimeRobot conversion
+- **PingdomCheckTests.cs** (67 tests) - Uptime check models, JSON serialization, API response handling
+- **TmsCheckTests.cs** (60 tests) - Transaction check models, complex nested objects, step validation
+- **ProgramTests.cs** (17 tests) - Dependency injection, HTTP client configuration, integration testing
+
+### Test Categories
+- **Unit Tests** - Individual class and method testing
+- **Integration Tests** - Service interaction and dependency injection
+- **Serialization Tests** - JSON conversion and API response handling
+- **Configuration Tests** - Settings validation and CLI argument parsing
+- **Model Tests** - Data model validation and edge cases
+
+## Key Architectural Patterns
+
+### Dependency Injection
+- Services registered in `Program.cs`
+- Configuration injected as singleton
+- HTTP clients configured with authentication
+- Export and API services as transient
+
+### Configuration Management
+- Multiple configuration sources (JSON, environment variables, CLI)
+- Hierarchical configuration with precedence
+- Validation and error handling
+
+### API Integration
+- Dedicated service layer for Pingdom API
+- Rate limiting and retry logic
 - Comprehensive error handling
+- Bearer token authentication
 
-✅ **Multiple Output Formats**
-- JSON format (detailed, structured data)
-- CSV format (for spreadsheet analysis)
-- Configurable output options
-
-✅ **Robust Configuration**
-- JSON configuration file
-- Environment variable support
-- Command-line argument support
-- Validation and error messages
-
-✅ **Command-Line Interface**
-- Comprehensive CLI argument support with System.CommandLine
-- Help documentation and version information
-- Configuration via CLI, environment variables, or config files
-- Auto mode for unattended execution
-- Verbose output mode for debugging
-
-✅ **Export Features**
-- Detailed and summary exports
-- Progress reporting
-- Export summaries with statistics
-- Error and warning tracking
+### Export System
+- Multiple output formats (JSON, CSV)
+- Progress reporting and statistics
+- Error tracking and warnings
 - Timestamped output files
-
-✅ **Cross-Platform Support**
-- .NET 9.0 for Windows, Linux, macOS
-- Cross-platform file handling
-
-✅ **Security Best Practices**
-- API tokens not logged or stored in exports
-- .gitignore protects sensitive configuration
-- Environment variable support for CI/CD
-
-✅ **Production Ready**
-- Comprehensive error handling
-- Retry logic for transient failures
-- Rate limiting implementation
-- Detailed logging and progress reporting
-- Graceful handling of partial failures
-
-## Quick Start
-
-1. **Set up API token:**
-   ```bash
-   # Copy sample configuration
-   cp appsettings.sample.json appsettings.json
-   
-   # Edit appsettings.json and add your Pingdom API token
-   ```
-
-2. **Run the application:**
-   ```bash
-   # Basic usage
-   dotnet run
-   
-   # With CLI arguments (auto mode)
-   dotnet run -- --api-token "your_token" --auto
-   
-   # Show help
-   dotnet run -- --help
-   
-   # Verbose output with custom settings
-   dotnet run -- --api-token "token" --output-dir "backup" --verbose --auto
-   ```
-
-3. **View exported data:**
-   ```bash
-   # Check the exports/ directory for JSON files
-   ls exports/
-   ```
-
-## API Endpoints Used
-
-- `GET /checks` - List all uptime checks
-- `GET /checks/{id}` - Get detailed uptime check configuration
-- `GET /tms/check` - List all transaction checks
-- `GET /tms/check/{id}` - Get detailed transaction check configuration
-
-## Data Exported
-
-### Uptime Checks
-- Basic check information (ID, name, status, etc.)
-- Check type configuration (HTTP, TCP, DNS, etc.)
-- Monitoring settings (resolution, thresholds, etc.)
-- Alert configuration (contacts, teams, notifications)
-- Tags and metadata
-
-### Transaction Checks (TMS)
-- Check details and status
-- Step-by-step transaction scripts
-- Metadata and browser configuration
-- Alert and notification settings
-- Performance and monitoring configuration
-
-## Error Handling
-
-The application handles various error scenarios:
-- Invalid API tokens
-- Network connectivity issues
-- API rate limiting
-- Individual check fetch failures
-- File system errors
-- Configuration validation
-
-Individual check failures don't stop the entire export process, allowing you to get partial results even if some checks can't be retrieved.
-
-## Configuration Options
-
-All configuration can be set via:
-1. `appsettings.json` file
-2. Environment variables (prefix: `PINGDOM_`)
-3. Command line arguments
-
-Key settings:
-- `ApiToken` - Your Pingdom API token (required)
-- `OutputDirectory` - Where to save exported files
-- `OutputFormat` - "json", "csv", or "both"
-- `RequestDelayMs` - Delay between API calls for rate limiting
-- `ExportUptimeChecks` - Enable/disable uptime check export
-- `ExportTransactionChecks` - Enable/disable transaction check export
-
-## Technical Dependencies
-
-### NuGet Packages
-- **Microsoft.Extensions.Configuration** (9.0.6) - Configuration framework
-- **Microsoft.Extensions.Configuration.CommandLine** (9.0.6) - CLI configuration support
-- **Microsoft.Extensions.Configuration.EnvironmentVariables** (9.0.6) - Environment variable support
-- **Microsoft.Extensions.Configuration.Json** (9.0.6) - JSON configuration file support
-- **Microsoft.Extensions.Http** (9.0.6) - HTTP client factory and services
-- **Newtonsoft.Json** (13.0.3) - JSON serialization/deserialization
-- **System.CommandLine** (2.0.0-beta4.22272.1) - Modern command-line interface
-
-### Framework
-- **.NET 9.0** - Target framework for cross-platform compatibility
-
-## Next Steps
-
-This application provides a solid foundation for Pingdom monitoring configuration management. You could extend it to:
-
-1. **Import functionality** - Create monitors from exported configurations
-2. **Monitoring comparison** - Compare configurations between environments
-3. **Automated backups** - Schedule regular exports
-4. **Configuration validation** - Validate exported configurations
-5. **Migration tools** - Migrate between Pingdom accounts
-6. **Reporting** - Generate reports from exported data

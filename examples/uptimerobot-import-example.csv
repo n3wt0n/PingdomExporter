@@ -1,0 +1,9 @@
+friendly_name,url,type,sub_type,port,keyword_type,keyword_value,http_username,http_password,alert_contacts,interval,timeout
+Company Website,https://example.com,1,,,,,,,1-2-3,300,30
+API Health Check,https://api.example.com/health,1,,,"keyword","status":"healthy",,,,1-2-3,60,30
+Database Server,db.example.com,3,,5432,,,,,1-2-3,300,30
+FTP Server,ftp.example.com,2,,21,,,,,1-2-3,300,30
+Mail Server,mail.example.com,4,,25,,,,,1-2-3,300,30
+DNS Check,example.com,5,,,,,,,1-2-3,300,30
+Website with Auth,https://secure.example.com,1,,,,,admin,password123,1-2-3,300,30
+API with Content Check,https://api.example.com/status,1,,,"keyword","healthy",,,,1-2-3,120,30

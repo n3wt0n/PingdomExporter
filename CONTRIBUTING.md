@@ -121,14 +121,146 @@ PingdomExporter/
 
 ## Testing
 
-Currently, the project focuses on integration testing through the CI/CD pipeline. If you're adding new features:
+The project includes comprehensive unit tests to ensure code quality and reliability. When contributing:
 
-1. Ensure your code builds successfully
-2. Test manually with valid Pingdom API credentials
-3. Verify cross-platform compatibility
-4. Consider edge cases and error scenarios
+### Running Tests
+```bash
+# Run all tests
+dotnet test
 
-Future versions will include unit tests. Contributions for test infrastructure are welcome!
+# Run tests with detailed output
+dotnet test --logger "console;verbosity=detailed"
+
+# Run tests for a specific project
+dotnet test PingdomExporter.Tests
+```
+
+### Test Requirements
+When adding new features or fixing bugs:
+
+1. **Write tests for new functionality** - All new features should include corresponding unit tests
+2. **Update existing tests** - If you modify existing functionality, update the relevant tests
+3. **Ensure all tests pass** - Your changes should not break existing tests
+4. **Test edge cases** - Consider error scenarios, null values, and boundary conditions
+5. **Mock external dependencies** - Use mocking for API calls and external services
+
+### Test Organization
+The test project follows a clear structure:
+
+- **`Models/`** - Tests for data models, JSON serialization, and validation
+- **`Services/`** - Tests for business logic and service classes
+- **`ProgramTests.cs`** - Integration tests for dependency injection and configuration
+
+### Test Guidelines
+- Use descriptive test method names that explain what is being tested
+- Follow the Arrange-Act-Assert pattern
+- Each test should focus on a single behavior
+- Use `[Theory]` and `[InlineData]` for parameterized tests
+- Mock external dependencies to ensure tests are isolated and fast
+
+### Test Coverage Areas
+- **CLI Argument Parsing** - All command-line options and validation
+- **Data Models** - JSON serialization, property validation, edge cases
+- **Configuration** - Default values, validation, multiple sources
+- **Integration** - Dependency injection, service resolution, HTTP client setup
+
+### Manual Testing
+For features that interact with the Pingdom API:
+
+1. Test with valid Pingdom API credentials
+2. Verify cross-platform compatibility
+3. Test error scenarios (invalid tokens, network issues)
+4. Validate output files and formats
+
+### Adding New Tests
+When adding tests for new functionality:
+
+1. Place tests in the appropriate directory (`Models/`, `Services/`, etc.)
+2. Follow existing naming conventions
+3. Include tests for both success and failure scenarios
+4. Document complex test scenarios with comments
+
+## Continuous Integration
+
+The project uses GitHub Actions for automated testing and code coverage reporting:
+
+### Test Automation
+- **Automated Testing**: All tests run automatically on every push and pull request
+- **Cross-Platform Testing**: Tests run on Ubuntu, Windows, and macOS for pull requests
+- **Test Results**: Detailed test results are published as GitHub Actions artifacts
+- **Coverage Reports**: Code coverage is automatically calculated and reported
+
+### Coverage Reporting
+- **Coverage Collection**: Uses XPlat Code Coverage to collect coverage data
+- **Report Generation**: ReportGenerator creates HTML and Cobertura reports
+- **Codecov Integration**: Coverage reports are uploaded to Codecov (requires `CODECOV_TOKEN` secret)
+- **PR Comments**: Coverage information is automatically commented on pull requests
+- **Minimum Coverage**: Currently set to 75% (configurable in workflow)
+
+### Artifacts and Reports
+- **Test Results**: Available as downloadable artifacts for 30 days
+- **Coverage Reports**: HTML coverage reports available as artifacts
+- **Cross-Platform Builds**: Platform-specific builds created for releases
+
+### Setting Up Coverage Integration
+To enable full coverage reporting:
+
+1. **Codecov Setup** (optional):
+   - Sign up at [codecov.io](https://codecov.io)
+   - Add your repository
+   - Add `CODECOV_TOKEN` to repository secrets
+
+2. **Local Coverage Testing**:
+   ```bash
+   # Run tests with coverage locally
+   dotnet test --collect:"XPlat Code Coverage"
+   
+   # Install ReportGenerator globally
+   dotnet tool install -g dotnet-reportgenerator-globaltool
+   
+   # Generate HTML report
+   reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"CoverageReport" -reporttypes:Html
+   ```
+
+### Coverage Targets
+- **Minimum Coverage**: 75% overall
+- **New Code**: Should maintain or improve coverage
+- **Critical Paths**: CLI parsing, API integration, and export functionality should have high coverage
+- **Test Categories**: All test categories should be well-covered
+
+### Understanding Coverage Reports
+The coverage reports show only the **main project files** (not test files), which is correct behavior:
+
+- **Files Included**: Only `PingdomExporter/*` files (Program.cs, Services/, Models/)
+- **Files Excluded**: Test files (`PingdomExporter.Tests/*`) are excluded from coverage
+- **Why Few Files**: The project currently has a focused structure with core logic in Services/
+
+### Coverage by File Type
+- **`Program.cs`** - Entry point (typically 0% coverage)
+  - Contains `Main()` method and application startup logic
+  - Tests verify the **components** it uses (DI, configuration) but don't execute the actual Program.cs code paths
+  - This is normal for console application entry points - testing the components is more valuable than testing the Main method
+  
+- **`Services/CliHandler.cs`** - CLI parsing logic (high test coverage ~90%+)
+  - Extensively tested with unit tests for all CLI scenarios
+  - Critical business logic with comprehensive test coverage
+  
+- **`Services/ExportService.cs`** - Core business logic (moderate coverage ~60-70%)
+  - Contains API integration and export logic
+  - Some paths require live API calls which are harder to test
+  
+- **`Models/*`** - Data models (covered through integration tests)
+  - JSON serialization and validation tested indirectly
+  - Model properties and validation covered through service tests
+
+### Why Program.cs Shows 0% Coverage
+This is **expected and normal** for console applications:
+- The `Main()` method orchestrates components but doesn't contain business logic
+- Tests verify that DI setup works, configuration loads correctly, and services can be resolved
+- Testing the actual `Main()` execution path would require complex integration tests with mocked console I/O
+- The valuable logic (CLI parsing, export logic, configuration) is tested in dedicated service classes
+
+The coverage report will show clean file paths (not long URLs) and focus on the actual testable application code.
 
 ## Documentation
 

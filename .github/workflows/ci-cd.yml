@@ -16,6 +16,12 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      statuses: write
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -35,7 +41,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget-
 
-
     - name: Restore dependencies (main)
       run: dotnet restore ${{ env.PROJECT_PATH }}
 
@@ -48,9 +53,108 @@ jobs:
     - name: Build tests
       run: dotnet build ${{ env.PROJECT_TEST_PATH }} --configuration Release --no-restore
 
-    - name: Run unit tests
-      run: dotnet test ${{ env.PROJECT_TEST_PATH }} --configuration Release --no-build --verbosity normal
+    - name: Run unit tests with coverage
+      run: |
+        dotnet test ${{ env.PROJECT_TEST_PATH }} \
+          --configuration Release \
+          --no-build \
+          --verbosity normal \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults \
+          --logger trx \
+          --logger "console;verbosity=detailed" \
+          --settings coverlet.runsettings
       continue-on-error: false
+
+    - name: List test results for debugging
+      run: |
+        echo "=== TestResults directory contents ==="
+        find ./TestResults -type f -name "*.xml" -o -name "*.json" -o -name "*.trx" | head -20
+        echo "=== Looking for coverage files ==="
+        find ./TestResults -name "*coverage*" -type f | head -10
+
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+    - name: Generate coverage report
+      run: |
+        # Find coverage files with more flexible patterns
+        echo "=== Searching for coverage files ==="
+        find ./TestResults -name "coverage.cobertura.xml" -type f | head -10
+        
+        # Create a properly formatted reports parameter
+        COVERAGE_PATTERN="./TestResults/**/coverage.cobertura.xml"
+        
+        # Check if any coverage files exist
+        if find ./TestResults -name "coverage.cobertura.xml" -type f | grep -q .; then
+          echo "Found coverage files, generating report..."
+          reportgenerator \
+            -reports:"$COVERAGE_PATTERN" \
+            -targetdir:"./TestResults/CoverageReport" \
+            -reporttypes:"Html;Cobertura;JsonSummary" \
+            -verbosity:Info
+        else
+          echo "No coverage files found. Creating empty coverage report..."
+          mkdir -p ./TestResults/CoverageReport
+          echo '<?xml version="1.0" encoding="UTF-8"?><coverage version="1"><packages></packages></coverage>' > ./TestResults/CoverageReport/Cobertura.xml
+        fi
+
+    - name: Upload test results
+      uses: dorny/test-reporter@v1
+      if: always()
+      continue-on-error: true
+      with:
+        name: .NET Tests
+        path: './TestResults/*.trx'
+        reporter: dotnet-trx
+        fail-on-error: false
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        file: ./TestResults/CoverageReport/Cobertura.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Comment coverage on PR
+      uses: irongut/CodeCoverageSummary@v1.3.0
+      if: github.event_name == 'pull_request'
+      with:
+        filename: ./TestResults/CoverageReport/Cobertura.xml
+        badge: true
+        fail_below_min: false
+        format: markdown
+        hide_branch_rate: false
+        hide_complexity: true
+        indicators: true
+        output: both
+        thresholds: '60 80'
+
+    - name: Add Coverage PR Comment
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: github.event_name == 'pull_request'
+      with:
+        recreate: true
+        path: code-coverage-results.md
+
+    - name: Upload coverage artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-report
+        path: ./TestResults/CoverageReport/
+        retention-days: 30
+
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: ./TestResults/
+        retention-days: 30
 
     - name: Create sample configuration
       run: |

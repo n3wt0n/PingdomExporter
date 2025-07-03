@@ -1,0 +1,170 @@
+{
+  "checks": [
+    {
+      "id": 12345678,
+      "name": "Company Website",
+      "hostname": "example.com",
+      "status": "up",
+      "lasterrortime": 1704067200,
+      "lasttesttime": 1704153600,
+      "lastresponsetime": 245,
+      "resolution": 5,
+      "created": 1672531200,
+      "type": {
+        "http": {
+          "url": "/",
+          "encryption": true,
+          "port": 443,
+          "username": "",
+          "password": "",
+          "shouldcontain": "",
+          "shouldnotcontain": "",
+          "postdata": "",
+          "requestheaders": {},
+          "verify_certificate": true,
+          "ssl_down_days_before": 7
+        }
+      },
+      "ipv6": false,
+      "verify_certificate": true,
+      "ssl_down_days_before": 7,
+      "tags": [
+        {
+          "name": "production",
+          "type": "u",
+          "count": 5
+        },
+        {
+          "name": "critical",
+          "type": "u",
+          "count": 3
+        }
+      ],
+      "probe_filters": [
+        "region:NA"
+      ],
+      "userids": [
+        987654
+      ],
+      "teamids": [
+        123456
+      ],
+      "responsetime_threshold": 5000,
+      "custom_message": "",
+      "integrationids": [
+        111222,
+        333444
+      ],
+      "severity_level": "HIGH"
+    },
+    {
+      "id": 23456789,
+      "name": "API Health Check",
+      "hostname": "api.example.com",
+      "status": "up",
+      "lasterrortime": 0,
+      "lasttesttime": 1704153600,
+      "lastresponsetime": 89,
+      "resolution": 1,
+      "created": 1672531200,
+      "type": {
+        "http": {
+          "url": "/health",
+          "encryption": true,
+          "port": 443,
+          "username": "",
+          "password": "",
+          "shouldcontain": "\"status\":\"healthy\"",
+          "shouldnotcontain": "error",
+          "postdata": "",
+          "requestheaders": {
+            "User-Agent": "Pingdom Health Check",
+            "Accept": "application/json"
+          },
+          "verify_certificate": true,
+          "ssl_down_days_before": 14
+        }
+      },
+      "ipv6": false,
+      "verify_certificate": true,
+      "ssl_down_days_before": 14,
+      "tags": [
+        {
+          "name": "api",
+          "type": "u",
+          "count": 8
+        },
+        {
+          "name": "production",
+          "type": "u",
+          "count": 5
+        }
+      ],
+      "probe_filters": [
+        "region:EU",
+        "region:NA"
+      ],
+      "userids": [
+        987654,
+        876543
+      ],
+      "teamids": [
+        123456
+      ],
+      "responsetime_threshold": 2000,
+      "custom_message": "API endpoint is experiencing issues",
+      "integrationids": [
+        111222
+      ],
+      "severity_level": "HIGH"
+    },
+    {
+      "id": 34567890,
+      "name": "Database Server",
+      "hostname": "db.example.com",
+      "status": "up",
+      "lasterrortime": 1704067200,
+      "lasttesttime": 1704153600,
+      "lastresponsetime": 12,
+      "resolution": 5,
+      "created": 1672531200,
+      "type": {
+        "tcp": {
+          "port": 5432,
+          "stringtosend": "",
+          "stringtoexpect": ""
+        }
+      },
+      "ipv6": false,
+      "tags": [
+        {
+          "name": "database",
+          "type": "u",
+          "count": 4
+        },
+        {
+          "name": "infrastructure",
+          "type": "u",
+          "count": 12
+        }
+      ],
+      "probe_filters": [
+        "region:EU"
+      ],
+      "userids": [
+        987654
+      ],
+      "teamids": [
+        123456,
+        789012
+      ],
+      "responsetime_threshold": 1000,
+      "custom_message": "",
+      "integrationids": [
+        111222,
+        555666
+      ],
+      "severity_level": "MEDIUM"
+    }
+  ]
+}
