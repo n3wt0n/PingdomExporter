@@ -234,13 +234,33 @@ The coverage reports show only the **main project files** (not test files), whic
 - **Files Included**: Only `PingdomExporter/*` files (Program.cs, Services/, Models/)
 - **Files Excluded**: Test files (`PingdomExporter.Tests/*`) are excluded from coverage
 - **Why Few Files**: The project currently has a focused structure with core logic in Services/
-- **Coverage Focus**: 
-  - `Program.cs` - Entry point (often low coverage due to DI setup)
-  - `Services/CliHandler.cs` - CLI parsing logic (high test coverage)
-  - `Services/ExportService.cs` - Core business logic (moderate coverage)
-  - `Models/*` - Data models (covered through integration tests)
 
-The coverage report will show clean file paths (not long URLs) and focus on the actual application code that needs testing.
+### Coverage by File Type
+- **`Program.cs`** - Entry point (typically 0% coverage)
+  - Contains `Main()` method and application startup logic
+  - Tests verify the **components** it uses (DI, configuration) but don't execute the actual Program.cs code paths
+  - This is normal for console application entry points - testing the components is more valuable than testing the Main method
+  
+- **`Services/CliHandler.cs`** - CLI parsing logic (high test coverage ~90%+)
+  - Extensively tested with unit tests for all CLI scenarios
+  - Critical business logic with comprehensive test coverage
+  
+- **`Services/ExportService.cs`** - Core business logic (moderate coverage ~60-70%)
+  - Contains API integration and export logic
+  - Some paths require live API calls which are harder to test
+  
+- **`Models/*`** - Data models (covered through integration tests)
+  - JSON serialization and validation tested indirectly
+  - Model properties and validation covered through service tests
+
+### Why Program.cs Shows 0% Coverage
+This is **expected and normal** for console applications:
+- The `Main()` method orchestrates components but doesn't contain business logic
+- Tests verify that DI setup works, configuration loads correctly, and services can be resolved
+- Testing the actual `Main()` execution path would require complex integration tests with mocked console I/O
+- The valuable logic (CLI parsing, export logic, configuration) is tested in dedicated service classes
+
+The coverage report will show clean file paths (not long URLs) and focus on the actual testable application code.
 
 ## Documentation
 
