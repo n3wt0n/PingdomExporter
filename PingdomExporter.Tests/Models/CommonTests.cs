@@ -379,7 +379,7 @@ namespace PingdomExporter.Tests.Models
             Assert.Equal(errors, summary.Errors);
             Assert.Equal(warnings, summary.Warnings);
             Assert.Equal(2, summary.Errors.Count);
-            Assert.Equal(1, summary.Warnings.Count);
+            Assert.Single(summary.Warnings);
         }
 
         [Fact]

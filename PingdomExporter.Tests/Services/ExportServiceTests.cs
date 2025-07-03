@@ -50,13 +50,13 @@ namespace PingdomExporter.Tests.Services
         public void Constructor_NullApiService_Throws()
         {
             var config = new ExportConfiguration();
-            Assert.Throws<ArgumentNullException>(() => new ExportService(null, config));
+            Assert.Throws<ArgumentNullException>(() => new ExportService(null!, config));
         }
 
         [Fact]
         public void Constructor_NullConfig_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => new ExportService(_mockApiService.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new ExportService(_mockApiService.Object, null!));
         }
 
         [Fact]
@@ -452,7 +452,7 @@ namespace PingdomExporter.Tests.Services
             var jsonFiles = Directory.GetFiles(_testOutputDir, "uptime-checks-summary_*.json");
             var content = await File.ReadAllTextAsync(jsonFiles[0]);
             var data = JsonConvert.DeserializeObject<PingdomChecksResponse>(content);
-            Assert.All(data.Checks, check => Assert.Equal("up", check.Status));
+            Assert.All(data!.Checks, check => Assert.Equal("up", check.Status));
         }
 
         #endregion

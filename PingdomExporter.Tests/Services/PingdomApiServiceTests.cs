@@ -52,14 +52,14 @@ namespace PingdomExporter.Tests.Services
         public void Constructor_NullHttpClient_Throws()
         {
             var config = new ExportConfiguration();
-            Assert.Throws<ArgumentNullException>(() => new PingdomApiService(null, config));
+            Assert.Throws<ArgumentNullException>(() => new PingdomApiService(null!, config));
         }
 
         [Fact]
         public void Constructor_NullConfig_Throws()
         {
             var httpClient = new HttpClient();
-            Assert.Throws<ArgumentNullException>(() => new PingdomApiService(httpClient, null));
+            Assert.Throws<ArgumentNullException>(() => new PingdomApiService(httpClient, null!));
         }
 
         [Fact]
@@ -570,7 +570,7 @@ namespace PingdomExporter.Tests.Services
             _mockHttpMessageHandler.Protected()
                 .Verify("SendAsync", Times.Once(),
                     ItExpr.Is<HttpRequestMessage>(req => 
-                        req.RequestUri.ToString().EndsWith(expectedRelativeUrl)),
+                        req.RequestUri!.ToString().EndsWith(expectedRelativeUrl)),
                     ItExpr.IsAny<CancellationToken>());
         }
 
