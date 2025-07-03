@@ -180,6 +180,54 @@ When adding tests for new functionality:
 3. Include tests for both success and failure scenarios
 4. Document complex test scenarios with comments
 
+## Continuous Integration
+
+The project uses GitHub Actions for automated testing and code coverage reporting:
+
+### Test Automation
+- **Automated Testing**: All tests run automatically on every push and pull request
+- **Cross-Platform Testing**: Tests run on Ubuntu, Windows, and macOS for pull requests
+- **Test Results**: Detailed test results are published as GitHub Actions artifacts
+- **Coverage Reports**: Code coverage is automatically calculated and reported
+
+### Coverage Reporting
+- **Coverage Collection**: Uses XPlat Code Coverage to collect coverage data
+- **Report Generation**: ReportGenerator creates HTML and Cobertura reports
+- **Codecov Integration**: Coverage reports are uploaded to Codecov (requires `CODECOV_TOKEN` secret)
+- **PR Comments**: Coverage information is automatically commented on pull requests
+- **Minimum Coverage**: Currently set to 75% (configurable in workflow)
+
+### Artifacts and Reports
+- **Test Results**: Available as downloadable artifacts for 30 days
+- **Coverage Reports**: HTML coverage reports available as artifacts
+- **Cross-Platform Builds**: Platform-specific builds created for releases
+
+### Setting Up Coverage Integration
+To enable full coverage reporting:
+
+1. **Codecov Setup** (optional):
+   - Sign up at [codecov.io](https://codecov.io)
+   - Add your repository
+   - Add `CODECOV_TOKEN` to repository secrets
+
+2. **Local Coverage Testing**:
+   ```bash
+   # Run tests with coverage locally
+   dotnet test --collect:"XPlat Code Coverage"
+   
+   # Install ReportGenerator globally
+   dotnet tool install -g dotnet-reportgenerator-globaltool
+   
+   # Generate HTML report
+   reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"CoverageReport" -reporttypes:Html
+   ```
+
+### Coverage Targets
+- **Minimum Coverage**: 75% overall
+- **New Code**: Should maintain or improve coverage
+- **Critical Paths**: CLI parsing, API integration, and export functionality should have high coverage
+- **Test Categories**: All test categories should be well-covered
+
 ## Documentation
 
 - Update README.md if you're changing functionality
