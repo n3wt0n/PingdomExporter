@@ -121,14 +121,64 @@ PingdomExporter/
 
 ## Testing
 
-Currently, the project focuses on integration testing through the CI/CD pipeline. If you're adding new features:
+The project includes comprehensive unit tests to ensure code quality and reliability. When contributing:
 
-1. Ensure your code builds successfully
-2. Test manually with valid Pingdom API credentials
-3. Verify cross-platform compatibility
-4. Consider edge cases and error scenarios
+### Running Tests
+```bash
+# Run all tests
+dotnet test
 
-Future versions will include unit tests. Contributions for test infrastructure are welcome!
+# Run tests with detailed output
+dotnet test --logger "console;verbosity=detailed"
+
+# Run tests for a specific project
+dotnet test PingdomExporter.Tests
+```
+
+### Test Requirements
+When adding new features or fixing bugs:
+
+1. **Write tests for new functionality** - All new features should include corresponding unit tests
+2. **Update existing tests** - If you modify existing functionality, update the relevant tests
+3. **Ensure all tests pass** - Your changes should not break existing tests
+4. **Test edge cases** - Consider error scenarios, null values, and boundary conditions
+5. **Mock external dependencies** - Use mocking for API calls and external services
+
+### Test Organization
+The test project follows a clear structure:
+
+- **`Models/`** - Tests for data models, JSON serialization, and validation
+- **`Services/`** - Tests for business logic and service classes
+- **`ProgramTests.cs`** - Integration tests for dependency injection and configuration
+
+### Test Guidelines
+- Use descriptive test method names that explain what is being tested
+- Follow the Arrange-Act-Assert pattern
+- Each test should focus on a single behavior
+- Use `[Theory]` and `[InlineData]` for parameterized tests
+- Mock external dependencies to ensure tests are isolated and fast
+
+### Test Coverage Areas
+- **CLI Argument Parsing** - All command-line options and validation
+- **Data Models** - JSON serialization, property validation, edge cases
+- **Configuration** - Default values, validation, multiple sources
+- **Integration** - Dependency injection, service resolution, HTTP client setup
+
+### Manual Testing
+For features that interact with the Pingdom API:
+
+1. Test with valid Pingdom API credentials
+2. Verify cross-platform compatibility
+3. Test error scenarios (invalid tokens, network issues)
+4. Validate output files and formats
+
+### Adding New Tests
+When adding tests for new functionality:
+
+1. Place tests in the appropriate directory (`Models/`, `Services/`, etc.)
+2. Follow existing naming conventions
+3. Include tests for both success and failure scenarios
+4. Document complex test scenarios with comments
 
 ## Documentation
 
