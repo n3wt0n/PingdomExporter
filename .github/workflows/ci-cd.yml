@@ -73,21 +73,24 @@ jobs:
     - name: Generate coverage report
       run: |
         # Find coverage files with more flexible patterns
-        COVERAGE_FILES=$(find ./TestResults -name "coverage.cobertura.xml" -o -name "*.coverage.xml" -o -name "*coverage*.xml" | grep -v "TestResults/CoverageReport" | head -10)
+        echo "=== Searching for coverage files ==="
+        find ./TestResults -name "coverage.cobertura.xml" -type f | head -10
         
-        if [ -z "$COVERAGE_FILES" ]; then
-          echo "No coverage files found. Checking for any XML files..."
-          find ./TestResults -name "*.xml" -type f | head -10
-          echo "Creating empty coverage report..."
-          mkdir -p ./TestResults/CoverageReport
-          echo '<?xml version="1.0" encoding="UTF-8"?><coverage version="1"><packages></packages></coverage>' > ./TestResults/CoverageReport/Cobertura.xml
-        else
-          echo "Found coverage files: $COVERAGE_FILES"
+        # Create a properly formatted reports parameter
+        COVERAGE_PATTERN="./TestResults/**/coverage.cobertura.xml"
+        
+        # Check if any coverage files exist
+        if find ./TestResults -name "coverage.cobertura.xml" -type f | grep -q .; then
+          echo "Found coverage files, generating report..."
           reportgenerator \
-            -reports:"$COVERAGE_FILES" \
+            -reports:"$COVERAGE_PATTERN" \
             -targetdir:"./TestResults/CoverageReport" \
             -reporttypes:"Html;Cobertura;JsonSummary" \
             -verbosity:Info
+        else
+          echo "No coverage files found. Creating empty coverage report..."
+          mkdir -p ./TestResults/CoverageReport
+          echo '<?xml version="1.0" encoding="UTF-8"?><coverage version="1"><packages></packages></coverage>' > ./TestResults/CoverageReport/Cobertura.xml
         fi
 
     - name: Upload test results
