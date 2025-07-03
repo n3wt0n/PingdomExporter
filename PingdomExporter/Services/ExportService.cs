@@ -135,7 +135,31 @@ namespace PingdomExporter.Services
                     else if (_config.ExportMode.Equals("UptimeRobot", StringComparison.OrdinalIgnoreCase))
                     {
                         Console.WriteLine("Converting checks to UptimeRobot import format...");
-                        var uptimeRobotMonitors = ConvertToUptimeRobotFormat(filteredChecks);
+                        Console.WriteLine("Fetching detailed information for UptimeRobot conversion...");
+                        
+                        var detailedChecks = new List<PingdomCheck>();
+                        foreach (var check in filteredChecks)
+                        {
+                            try
+                            {
+                                await ((PingdomApiService)_apiService).DelayForRateLimitAsync();
+                                var detailedCheck = await _apiService.GetUptimeCheckDetailsAsync(check.Id);
+                                detailedChecks.Add(detailedCheck);
+
+                                if (detailedChecks.Count % 10 == 0)
+                                    Console.WriteLine($"Processed {detailedChecks.Count}/{filteredChecks.Count} checks for UptimeRobot conversion...");
+                            }
+                            catch (Exception ex)
+                            {
+                                var warning = $"Failed to fetch details for uptime check {check.Id}: {ex.Message}";
+                                summary.Warnings.Add(warning);
+                                Console.WriteLine($"Warning: {warning}");
+                                // Use summary data as fallback
+                                detailedChecks.Add(check);
+                            }
+                        }
+                        
+                        var uptimeRobotMonitors = ConvertToUptimeRobotFormat(detailedChecks);
                         await SaveUptimeRobotImportFileAsync(uptimeRobotMonitors, summary);
                     }
                     else
@@ -346,8 +370,7 @@ namespace PingdomExporter.Services
                     {
                         monitor.Type = "Port";
                         monitor.UrlIp = check.Hostname ?? string.Empty;
-                        // We can't get port info from summary, so leave empty
-                        monitor.Port = "";
+                        monitor.Port = GetTcpPortFromCheck(check);
                     }
                     else
                     {
@@ -369,17 +392,81 @@ namespace PingdomExporter.Services
 
         private string GetHttpUrlFromCheck(PingdomCheck check)
         {
-            // For basic conversion, construct a simple HTTP URL
-            // This is a simplified approach since we're working with summary data
-            var hostname = check.Hostname ?? string.Empty;
-            
-            if (hostname.StartsWith("http://") || hostname.StartsWith("https://"))
+            // Try to extract full URL from detailed check data
+            if (check.Type is Newtonsoft.Json.Linq.JObject typeObject)
             {
-                return hostname;
+                // This is detailed check data - extract URL from type object
+                var httpDetails = typeObject["http"];
+                if (httpDetails != null)
+                {
+                    var url = httpDetails["url"]?.ToString();
+                    if (!string.IsNullOrEmpty(url))
+                    {
+                        // Construct full URL by combining hostname and URL path
+                        var hostname = check.Hostname ?? string.Empty;
+                        
+                        // If URL is already complete, return it
+                        if (url.StartsWith("http://") || url.StartsWith("https://"))
+                        {
+                            return url;
+                        }
+                        
+                        // If URL is a path, combine with hostname
+                        if (url.StartsWith("/"))
+                        {
+                            // Determine protocol - check if encryption is enabled
+                            var encryption = httpDetails["encryption"]?.ToObject<bool>() ?? true;
+                            var protocol = encryption ? "https" : "http";
+                            
+                            // Handle port if specified
+                            var port = httpDetails["port"]?.ToObject<int>();
+                            var portString = "";
+                            if (port.HasValue && port.Value != (encryption ? 443 : 80))
+                            {
+                                portString = $":{port.Value}";
+                            }
+                            
+                            return $"{protocol}://{hostname}{portString}{url}";
+                        }
+                        
+                        // If URL doesn't start with /, assume it's a relative path
+                        var defaultProtocol = httpDetails["encryption"]?.ToObject<bool>() == false ? "http" : "https";
+                        return $"{defaultProtocol}://{hostname}/{url.TrimStart('/')}";
+                    }
+                }
+            }
+            
+            // Fallback to hostname-based URL construction
+            var fallbackHostname = check.Hostname ?? string.Empty;
+            
+            if (fallbackHostname.StartsWith("http://") || fallbackHostname.StartsWith("https://"))
+            {
+                return fallbackHostname;
             }
             
             // Default to HTTPS for security
-            return $"https://{hostname}";
+            return $"https://{fallbackHostname}";
+        }
+
+        private string GetTcpPortFromCheck(PingdomCheck check)
+        {
+            // Try to extract port from detailed check data
+            if (check.Type is Newtonsoft.Json.Linq.JObject typeObject)
+            {
+                // This is detailed check data - extract port from type object
+                var tcpDetails = typeObject["tcp"];
+                if (tcpDetails != null)
+                {
+                    var port = tcpDetails["port"]?.ToObject<int>();
+                    if (port.HasValue)
+                    {
+                        return port.Value.ToString();
+                    }
+                }
+            }
+            
+            // Fallback - return empty string if port cannot be determined
+            return string.Empty;
         }
 
         private async Task SaveUptimeRobotImportFileAsync(List<UptimeRobotMonitor> monitors, ExportSummary summary)

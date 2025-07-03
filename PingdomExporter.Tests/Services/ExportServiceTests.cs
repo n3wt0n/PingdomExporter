@@ -496,6 +496,145 @@ namespace PingdomExporter.Tests.Services
 
         #endregion
 
+        #region URL Construction Tests (Bug Fix Verification)
+
+        [Fact]
+        public void GetHttpUrlFromCheck_WithDetailedHttpData_ReturnsFullUrl()
+        {
+            // Arrange
+            var service = new ExportService(_mockApiService.Object, _config);
+            var check = new PingdomCheck
+            {
+                Id = 123,
+                Name = "Test Check",
+                Hostname = "example.com",
+                Type = Newtonsoft.Json.Linq.JObject.Parse(@"{
+                    ""http"": {
+                        ""url"": ""/api/health"",
+                        ""encryption"": true,
+                        ""port"": 443
+                    }
+                }")
+            };
+
+            // Act
+            var result = InvokePrivateMethod<string>(service, "GetHttpUrlFromCheck", check);
+
+            // Assert
+            Assert.Equal("https://example.com/api/health", result);
+        }
+
+        [Fact]
+        public void GetHttpUrlFromCheck_WithCustomPort_IncludesPort()
+        {
+            // Arrange
+            var service = new ExportService(_mockApiService.Object, _config);
+            var check = new PingdomCheck
+            {
+                Id = 123,
+                Name = "Test Check",
+                Hostname = "example.com",
+                Type = Newtonsoft.Json.Linq.JObject.Parse(@"{
+                    ""http"": {
+                        ""url"": ""/api/health"",
+                        ""encryption"": true,
+                        ""port"": 8443
+                    }
+                }")
+            };
+
+            // Act
+            var result = InvokePrivateMethod<string>(service, "GetHttpUrlFromCheck", check);
+
+            // Assert
+            Assert.Equal("https://example.com:8443/api/health", result);
+        }
+
+        [Fact]
+        public void GetHttpUrlFromCheck_WithHttpNoEncryption_ReturnsHttpUrl()
+        {
+            // Arrange
+            var service = new ExportService(_mockApiService.Object, _config);
+            var check = new PingdomCheck
+            {
+                Id = 123,
+                Name = "Test Check",
+                Hostname = "example.com",
+                Type = Newtonsoft.Json.Linq.JObject.Parse(@"{
+                    ""http"": {
+                        ""url"": ""/api/health"",
+                        ""encryption"": false,
+                        ""port"": 80
+                    }
+                }")
+            };
+
+            // Act
+            var result = InvokePrivateMethod<string>(service, "GetHttpUrlFromCheck", check);
+
+            // Assert
+            Assert.Equal("http://example.com/api/health", result);
+        }
+
+        [Fact]
+        public void GetTcpPortFromCheck_WithDetailedTcpData_ReturnsPort()
+        {
+            // Arrange
+            var service = new ExportService(_mockApiService.Object, _config);
+            var check = new PingdomCheck
+            {
+                Id = 123,
+                Name = "Test Check",
+                Hostname = "example.com",
+                Type = Newtonsoft.Json.Linq.JObject.Parse(@"{
+                    ""tcp"": {
+                        ""port"": 3306
+                    }
+                }")
+            };
+
+            // Act
+            var result = InvokePrivateMethod<string>(service, "GetTcpPortFromCheck", check);
+
+            // Assert
+            Assert.Equal("3306", result);
+        }
+
+        [Fact]
+        public void GetTcpPortFromCheck_WithSummaryData_ReturnsEmpty()
+        {
+            // Arrange
+            var service = new ExportService(_mockApiService.Object, _config);
+            var check = new PingdomCheck
+            {
+                Id = 123,
+                Name = "Test Check",
+                Hostname = "example.com",
+                Type = "tcp" // Summary data - just a string
+            };
+
+            // Act
+            var result = InvokePrivateMethod<string>(service, "GetTcpPortFromCheck", check);
+
+            // Assert
+            Assert.Equal(string.Empty, result);
+        }
+
+        /// <summary>
+        /// Helper method to invoke private methods for testing
+        /// </summary>
+        private T InvokePrivateMethod<T>(object obj, string methodName, params object[] parameters)
+        {
+            var method = obj.GetType().GetMethod(methodName, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (method == null)
+                throw new ArgumentException($"Method '{methodName}' not found");
+            
+            var result = method.Invoke(obj, parameters);
+            return (T)result;
+        }
+
+        #endregion
+
         #region Helper Methods
 
         private List<PingdomCheck> CreateSampleUptimeChecks()
