@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.1](https://github.com/n3wt0n/PingdomExporter/compare/v0.5.0...v0.5.1) (2025-07-02)
+
+### 🐛 Bug Fixes
+
+* updated folder for app settings ([4862cfd](https://github.com/n3wt0n/PingdomExporter/commit/4862cfd073ec3ec4e676f15a3efd5a5a283f2ca2))
+
 ## [0.5.0](https://github.com/n3wt0n/PingdomExporter/compare/v0.4.0...v0.5.0) (2025-07-02)
 
 ### 🚀 Features
