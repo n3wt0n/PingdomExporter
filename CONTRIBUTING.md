@@ -228,6 +228,20 @@ To enable full coverage reporting:
 - **Critical Paths**: CLI parsing, API integration, and export functionality should have high coverage
 - **Test Categories**: All test categories should be well-covered
 
+### Understanding Coverage Reports
+The coverage reports show only the **main project files** (not test files), which is correct behavior:
+
+- **Files Included**: Only `PingdomExporter/*` files (Program.cs, Services/, Models/)
+- **Files Excluded**: Test files (`PingdomExporter.Tests/*`) are excluded from coverage
+- **Why Few Files**: The project currently has a focused structure with core logic in Services/
+- **Coverage Focus**: 
+  - `Program.cs` - Entry point (often low coverage due to DI setup)
+  - `Services/CliHandler.cs` - CLI parsing logic (high test coverage)
+  - `Services/ExportService.cs` - Core business logic (moderate coverage)
+  - `Models/*` - Data models (covered through integration tests)
+
+The coverage report will show clean file paths (not long URLs) and focus on the actual application code that needs testing.
+
 ## Documentation
 
 - Update README.md if you're changing functionality
