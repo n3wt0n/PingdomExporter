@@ -149,7 +149,7 @@ jobs:
         cd ${{ env.PROJECT_PATH }}
         
         # Create platform-specific build
-        dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true --output ../temp-build/${{ matrix.runtime }}
+        dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --self-contained true -p:PublishSingleFile=true --output ../temp-build/${{ matrix.runtime }}
         
         # Copy additional files
         cp ../README.md ../temp-build/${{ matrix.runtime }}/ 2>/dev/null || echo "Failed to copy README.md"
