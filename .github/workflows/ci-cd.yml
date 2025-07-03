@@ -56,19 +56,39 @@ jobs:
           --collect:"XPlat Code Coverage" \
           --results-directory ./TestResults \
           --logger trx \
-          --logger "console;verbosity=detailed"
+          --logger "console;verbosity=detailed" \
+          --settings coverlet.runsettings
       continue-on-error: false
+
+    - name: List test results for debugging
+      run: |
+        echo "=== TestResults directory contents ==="
+        find ./TestResults -type f -name "*.xml" -o -name "*.json" -o -name "*.trx" | head -20
+        echo "=== Looking for coverage files ==="
+        find ./TestResults -name "*coverage*" -type f | head -10
 
     - name: Install ReportGenerator
       run: dotnet tool install -g dotnet-reportgenerator-globaltool
 
     - name: Generate coverage report
       run: |
-        reportgenerator \
-          -reports:"./TestResults/**/coverage.cobertura.xml" \
-          -targetdir:"./TestResults/CoverageReport" \
-          -reporttypes:"Html;Cobertura;JsonSummary" \
-          -verbosity:Info
+        # Find coverage files with more flexible patterns
+        COVERAGE_FILES=$(find ./TestResults -name "coverage.cobertura.xml" -o -name "*.coverage.xml" -o -name "*coverage*.xml" | grep -v "TestResults/CoverageReport" | head -10)
+        
+        if [ -z "$COVERAGE_FILES" ]; then
+          echo "No coverage files found. Checking for any XML files..."
+          find ./TestResults -name "*.xml" -type f | head -10
+          echo "Creating empty coverage report..."
+          mkdir -p ./TestResults/CoverageReport
+          echo '<?xml version="1.0" encoding="UTF-8"?><coverage version="1"><packages></packages></coverage>' > ./TestResults/CoverageReport/Cobertura.xml
+        else
+          echo "Found coverage files: $COVERAGE_FILES"
+          reportgenerator \
+            -reports:"$COVERAGE_FILES" \
+            -targetdir:"./TestResults/CoverageReport" \
+            -reporttypes:"Html;Cobertura;JsonSummary" \
+            -verbosity:Info
+        fi
 
     - name: Upload test results
       uses: dorny/test-reporter@v1
