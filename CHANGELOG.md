@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0](https://github.com/n3wt0n/PingdomExporter/compare/v0.5.2...v1.0.0) (2025-07-03)
+
+### ⚠ BREAKING CHANGES
+
+* v 1.0.0
+* First stable release with finalized API
+
+### 🚀 Features
+
+* added examples ([7201489](https://github.com/n3wt0n/PingdomExporter/commit/72014891985da14d0496b97dc8912cb35612fc5c))
+* added test report ([3211d39](https://github.com/n3wt0n/PingdomExporter/commit/3211d39ca0d204c8948434dae47df87db7cda50f))
+* release v1.0.0 - clean build with zero warnings ([db55928](https://github.com/n3wt0n/PingdomExporter/commit/db55928363d3b5ce4b4895af9f99e6f587c0d713))
+* v 1.0.0 ([93fa50e](https://github.com/n3wt0n/PingdomExporter/commit/93fa50ecc706b9150e2104dd4c2a0ea4e63f34cc))
+
+### 🐛 Bug Fixes
+
+* cleanup ([a675a06](https://github.com/n3wt0n/PingdomExporter/commit/a675a0665b10704238e4626e7691f2141d9250a0))
+
 ## [0.5.2](https://github.com/n3wt0n/PingdomExporter/compare/v0.5.1...v0.5.2) (2025-07-03)
 
 ### 🐛 Bug Fixes
